@@ -564,7 +564,7 @@ html, body { height:100%; overflow:hidden; font-family:var(--font); background:v
 .window.maximized, .window.snap-left, .window.snap-right, .window.snap-tl, .window.snap-tr, .window.snap-bl, .window.snap-br,
 .window.snap-top, .window.snap-bottom, .window.snap-third-l, .window.snap-third-c, .window.snap-third-r,
 .window.snap-row-t, .window.snap-row-m, .window.snap-row-b, .window.snap-q1, .window.snap-q2, .window.snap-q3, .window.snap-q4 {
-  transform: none !important;
+  /* Keep transform available for the maximize/restore FLIP morph animation. */
 }
 .window.maximized {
   top:0!important; left:0!important; width:100%!important;
@@ -1157,6 +1157,133 @@ input#gamesSearch:focus, input#musicSearch:focus, input[data-url]:focus {
 }
 input#gamesSearch::placeholder, input#musicSearch::placeholder, input[data-url]::placeholder {
   color: var(--faint);
+}
+
+/* Unified Bunny OS search fields */
+.search-field, .search-field:focus-within {
+  box-sizing:border-box; min-width:0; display:flex; align-items:center; gap:10px;
+  background:rgba(255,255,255,.76)!important; border:1px solid rgba(82,91,108,.18)!important;
+  border-radius:14px!important; padding:0 14px!important; min-height:44px;
+  box-shadow:0 3px 12px rgba(35,43,58,.035); transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.search-field:focus-within { background:#fff!important; border-color:var(--accent)!important; box-shadow:0 0 0 3px var(--accent-soft),0 8px 22px rgba(35,43,58,.07); }
+.search-field input { min-width:0; flex:1; width:100%; border:0!important; outline:0!important; background:transparent!important; color:#252936!important; font:500 13px var(--font,system-ui,sans-serif)!important; box-shadow:none!important; }
+.search-field input::placeholder { color:#9299a7!important; opacity:1; }
+.search-field svg { flex-shrink:0; color:#8991a0; }
+#gamesSearch,#musicSearch,input[data-url] { outline:none; }
+#gamesSearch:focus,#musicSearch:focus,input[data-url]:focus { outline:none; }
+/* Browser tabs: clear active state and gentle enter/switch motion */
+.bunny-browser-tab { position:relative; transform-origin:50% 100%; transition:background .2s ease,color .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease; }
+.bunny-browser-tab:hover { transform:translateY(-1px); }
+.bunny-browser-tab.is-active { box-shadow:inset 0 2px 0 var(--accent),0 -2px 9px rgba(38,45,60,.045); font-weight:750!important; }
+.bunny-browser-tab.is-active:after { content:""; position:absolute; height:3px; left:12px; right:12px; bottom:-1px; border-radius:4px 4px 0 0; background:var(--accent); }
+.bunny-tab-enter { animation:bunnyTabEnter .24s cubic-bezier(.2,.8,.2,1) both; }
+.bunny-page-enter { animation:bunnyPageEnter .22s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes bunnyTabEnter { from {opacity:0;transform:translateY(7px) scale(.96)} to {opacity:1;transform:translateY(0) scale(1)} }
+@keyframes bunnyPageEnter { from {opacity:.45;transform:translateY(4px) scale(.995)} to {opacity:1;transform:translateY(0) scale(1)} }
+@media(prefers-reduced-motion:reduce){.search-field,.bunny-browser-tab,.bunny-tab-enter,.bunny-page-enter{animation:none!important;transition:none!important}}
+
+
+/* Bunny polish pass: stronger input caret and consistent pill search fields */
+.search-field { border-radius:999px!important; min-height:44px!important; padding:0 16px!important; background:#f7f8fb!important; border:1px solid #dfe3eb!important; box-shadow:inset 0 1px 1px rgba(24,32,48,.025),0 3px 10px rgba(24,32,48,.035)!important; }
+.search-field:focus-within { background:#fff!important; border-color:var(--accent)!important; box-shadow:0 0 0 3px var(--accent-soft),0 7px 18px rgba(35,43,58,.075)!important; }
+.search-field input, #gamesSearch, #musicSearch, input[data-url] { caret-color:var(--accent)!important; font-size:14px!important; line-height:1.55!important; }
+.search-field input::selection, #gamesSearch::selection, #musicSearch::selection, input[data-url]::selection { background:var(--accent-soft); color:#202431; }
+.bunny-browser-tab { transition:background .22s ease,color .22s ease,border-color .22s ease,transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease!important; }
+.bunny-browser-tab:not(.is-active):hover { background:rgba(255,255,255,.72)!important; color:#353b49!important; }
+.bunny-browser-tab [data-close]:hover { background:rgba(80,90,110,.12)!important; color:#252a35!important; }
+.bunny-browser-tab.is-active:after { height:3px!important; left:14px!important; right:14px!important; bottom:-1px!important; background:var(--accent)!important; }
+.bunny-tab-switch { animation:bunnyTabSwitch .24s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes bunnyTabSwitch { from { transform:translateY(3px) scale(.985); } to { transform:translateY(0) scale(1); } }
+/* Music should belong to the same soft light-gray desktop, not a dark card theme. */
+.window:has(#musicList) { background:#f4f5f8!important; color:#242936!important; }
+.window:has(#musicList) > .window-body, .window:has(#musicList) .window-content { background:#f4f5f8!important; }
+.window:has(#musicList) #musicList { background:transparent!important; }
+.window:has(#musicList) #musicList > div { border-radius:10px!important; transition:background .16s ease,transform .16s ease!important; }
+.window:has(#musicList) #musicList > div:hover { background:rgba(255,255,255,.86)!important; }
+.window:has(#musicList) #musicSearch { background:transparent!important; color:#252936!important; caret-color:var(--accent)!important; font-size:14px!important; }
+.window:has(#musicList) #musicSearch::placeholder { color:#9299a7!important; opacity:1!important; }
+.window:has(#musicList) #musicPlay, .window:has(#musicList) #musPlayAll { color:#fff!important; box-shadow:0 5px 14px rgba(35,43,58,.13)!important; }
+.window:has(#musicList) #musicFill { background:var(--accent)!important; }
+.window:has(#musicList) #musicBar { background:#dfe3eb!important; }
+.window:has(#musicList) #musicArt { background:#e8ebf1!important; color:var(--accent)!important; border:1px solid rgba(80,90,110,.08)!important; }
+.window:has(#musicList) .mus-nav { transition:background .16s ease,color .16s ease,transform .16s ease!important; }
+.window:has(#musicList) .mus-nav:hover { background:rgba(255,255,255,.78)!important; color:#252936!important; transform:translateX(2px); }
+.window:has(#musicList) [style*="height:88px"] { background:#f7f8fb!important; border-top:1px solid #dfe3eb!important; }
+@media(prefers-reduced-motion:reduce){.bunny-tab-switch{animation:none!important}}
+
+
+/* Final visual pass: Chrome-like browser tabs, more legible caret, and music layout inspired by the supplied reference. */
+.bunny-browser-tab { transform-origin:50% 100%; transition:background .18s ease,color .18s ease,border-color .18s ease,transform .18s ease,box-shadow .18s ease!important; }
+.bunny-browser-tab:not(.is-active):hover { background:#eef0f5!important; transform:translateY(-2px); color:#252936!important; }
+.bunny-browser-tab.is-active { background:#fff!important; color:#202431!important; border-color:#fff!important; border-bottom-color:#fff!important; box-shadow:0 -1px 4px rgba(30,38,55,.06)!important; font-weight:700!important; z-index:2; }
+.bunny-browser-tab.is-active:after { content:none!important; }
+.bunny-browser-tab [data-close] { border-radius:50%!important; }
+.bunny-browser-tab [data-close]:hover { background:#e7e9ef!important; }
+.ff-tabs::-webkit-scrollbar { height:5px; }
+.ff-tabs::-webkit-scrollbar-thumb { background:#b8bfcc; border-radius:99px; }
+/* Caret visibility: larger text and comfortable line height make the native caret feel proportional. */
+.search-field input,#gamesSearch,#musicSearch,input[data-url],.start-search input,.search input { font-size:16px!important; line-height:1.65!important; caret-color:var(--accent)!important; }
+.search-field input:focus,input[data-url]:focus,#gamesSearch:focus,#musicSearch:focus { text-shadow:none!important; }
+.search-field:focus-within { outline:1px solid color-mix(in srgb,var(--accent) 28%,transparent); outline-offset:1px; }
+.window:has(#musicList) { background:#f2f3f7!important; color:#242936!important; }
+.window:has(#musicList) .window-body,.window:has(#musicList) .window-content { background:#f2f3f7!important; }
+.window:has(#musicList) .window-body > div { background:#f2f3f7!important; }
+.window:has(#musicList) .window-body > div > div:first-child { background:rgba(255,255,255,.48)!important; }
+.window:has(#musicList) #musHero { width:clamp(128px,20vw,196px)!important; height:clamp(128px,20vw,196px)!important; border-radius:20px!important; background:linear-gradient(145deg,#fff,#e8ebf2)!important; color:var(--accent)!important; box-shadow:0 12px 32px rgba(45,53,72,.10)!important; border:1px solid rgba(255,255,255,.85)!important; }
+.window:has(#musicList) #musHero svg { width:52px!important;height:52px!important; }
+.window:has(#musicList) #musTitle { letter-spacing:-1.2px!important; }
+.window:has(#musicList) #musicList > div { border-radius:9px!important; margin:2px 0!important; padding-top:10px!important; padding-bottom:10px!important; }
+.window:has(#musicList) #musicList > div:hover { background:rgba(255,255,255,.92)!important; transform:translateX(2px); }
+.window:has(#musicList) .search-field { min-height:42px!important; border-radius:999px!important; background:#f7f8fb!important; border-color:#e0e3eb!important; }
+.window:has(#musicList) .search-field:focus-within { background:#fff!important; }
+.window:has(#musicList) [style*="height:88px"] { background:rgba(255,255,255,.82)!important; border-top:1px solid #dfe3eb!important; box-shadow:0 -8px 26px rgba(45,53,72,.035); }
+.window:has(#musicList) #musicPlay { width:38px!important;height:38px!important; box-shadow:0 3px 10px rgba(45,53,72,.14)!important; }
+.window:has(#musicList) #musicBar { height:4px!important; background:#dfe3eb!important; }
+@media(max-width:700px){.window:has(#musicList) #musHero{width:112px!important;height:112px!important}.window:has(#musicList) #musTitle{font-size:25px!important}}
+
+/* Corrected native caret sizing: avoid inflated line-height that makes the caret look short beside the first glyph. */
+.window input#musicSearch,
+.window input#gamesSearch,
+.window input[data-url],
+.window .search-field input,
+.window .start-search input,
+.window .search input {
+  font-size: 16px !important;
+  line-height: normal !important;
+  height: 100%;
+  min-height: 1.35em;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  vertical-align: middle;
+  caret-color: var(--accent, #e85a7a) !important;
+  font-family: Inter, var(--font, system-ui, sans-serif) !important;
+  font-weight: 500 !important;
+}
+.window input#musicSearch { height: 38px !important; line-height: normal !important; }
+.window input[data-url] { height: 100% !important; min-height: 34px !important; line-height: normal !important; }
+.search-field:focus-within { align-items: center !important; }
+.akko-music-shell button { transition: transform .16s ease, background .16s ease, box-shadow .16s ease, color .16s ease; }
+.akko-music-shell button:hover { transform: translateY(-1px); }
+.akko-music-shell button:active { transform: scale(.96); }
+.akko-music-shell .mus-nav[data-view="all"]:hover,
+.akko-music-shell .mus-nav[data-view="liked"]:hover { background: #fff !important; color: #252936 !important; }
+.akko-music-shell #musicList > div { border-radius: 10px !important; margin: 2px 0 !important; transition: background .16s ease, transform .16s ease; }
+.akko-music-shell #musicList > div:hover { background: rgba(255,255,255,.88) !important; transform: translateX(2px); }
+.akko-music-shell #musHero svg { width: 48px; height: 48px; }
+@media (max-width: 700px) {
+ .akko-music-stage { grid-template-columns: minmax(110px,.7fr) minmax(180px,1.3fr) !important; gap: 14px !important; padding: 16px !important; }
+ .akko-music-top { padding: 0 12px !important; gap: 10px !important; }
+ .akko-music-top .mus-nav { padding: 8px !important; font-size: 10px !important; }
+ .akko-music-shell #musTitle { font-size: 20px !important; }
+}
+@media (max-width: 520px) {
+ .akko-music-stage { grid-template-columns: 1fr !important; overflow:auto !important; align-items:start !important; }
+ .akko-music-stage > div:first-child { flex-direction:row !important; justify-content:flex-start !important; flex-wrap:wrap; }
+ .akko-music-stage > div:first-child #musHero { width:96px !important;height:96px !important; }
+ .akko-music-stage > div:first-child > div:nth-child(2) { text-align:left !important; }
+ .akko-music-stage > div:first-child > div:nth-child(3) { display:none !important; }
+ .akko-music-stage > div:nth-child(2) { min-height:260px !important; }
 }
 </style>
 </head>
@@ -2444,7 +2571,14 @@ function toggleMaximize(id) {
   const win = openWindows[id];
   if (!win) return;
   var isMax = win.classList.contains('maximized');
-  // clear snap layouts but keep track of maximize state ourselves (clearSnapClasses strips maximized)
+  // Capture the current visual bounds so maximize and restore can morph from
+  // exactly where the window is, rather than jumping between two rectangles.
+  const before = win.getBoundingClientRect();
+  const computedRadius = getComputedStyle(win).borderRadius || '12px';
+  const previousTransition = win.style.transition;
+  // Let FLIP handle the geometry itself, avoiding a second competing CSS tween.
+  win.style.transition = 'none';
+
   clearSnapClasses(win);
   if (!isMax) {
     freezeWindowRect(win);
@@ -2454,7 +2588,6 @@ function toggleMaximize(id) {
       width: win.style.width,
       height: win.style.height
     });
-    void win.offsetWidth;
     win.classList.add('maximized');
   } else {
     win.classList.remove('maximized');
@@ -2468,9 +2601,30 @@ function toggleMaximize(id) {
       }
     } catch (e) {}
   }
+
+  // Force layout after applying the destination geometry, then FLIP-animate
+  // the window from its old bounds to its new bounds with a soft spring-like ease.
+  const after = win.getBoundingClientRect();
+  const dx = before.left - after.left;
+  const dy = before.top - after.top;
+  const sx = after.width ? before.width / after.width : 1;
+  const sy = after.height ? before.height / after.height : 1;
+  if (win.animate) {
+    try {
+      win.animate([
+        { transformOrigin: 'top left', transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, borderRadius: computedRadius },
+        { transformOrigin: 'top left', transform: 'translate(0, 0) scale(1, 1)', borderRadius: isMax ? '12px' : '12px' }
+      ], {
+        duration: 420,
+        easing: 'cubic-bezier(.22, 1, .36, 1)',
+        fill: 'none'
+      });
+    } catch (e) {}
+  }
   setTimeout(function() {
+    win.style.transition = previousTransition;
     window.dispatchEvent(new Event('resize'));
-  }, 340);
+  }, 440);
 }
 function focusWindow(id) {
   Object.values(openWindows).forEach(w => w.classList.remove('focused'));
@@ -2566,7 +2720,7 @@ function createBrowserUI(body) {
   chrome.style.cssText = 'display:flex;flex-direction:column;height:100%;background:var(--surface)';
 
   const tabsEl = document.createElement('div');
-  tabsEl.style.cssText = 'display:flex;align-items:flex-end;gap:4px;padding:8px 10px 0;background:var(--surface2);border-bottom:1px solid var(--border);min-height:40px;overflow-x:auto;flex-shrink:0';
+  tabsEl.style.cssText = 'display:flex;align-items:flex-end;gap:2px;padding:7px 9px 0;background:#e4e7ed;border-bottom:1px solid #cbd0da;min-height:42px;overflow-x:auto;flex-shrink:0';
 
   const nav = document.createElement('div');
   nav.style.cssText = 'display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0';
@@ -2575,7 +2729,7 @@ function createBrowserUI(body) {
     '<button data-act="fwd" title="Forward" style="width:32px;height:32px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--dim);cursor:pointer">→</button>' +
     '<button data-act="reload" title="Reload" style="width:32px;height:32px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--dim);cursor:pointer">↻</button>' +
     '<button data-act="home" title="Home" style="width:32px;height:32px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--dim);cursor:pointer">⌂</button>' +
-    '<div style="flex:1;display:flex;align-items:center;height:36px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);padding:0 12px;gap:10px">' +
+    '<div class="search-field" style="flex:1;height:40px">' +
     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>' +
     '<input data-url type="text" placeholder="Search Google…" spellcheck="false" style="flex:1;border:none;background:transparent;color:var(--text);font-size:13px;outline:none;min-width:0;font-family:var(--font)"/>' +
     '</div>' +
@@ -2645,7 +2799,12 @@ function createBrowserUI(body) {
     state.tabs.forEach(function(t) {
       if (t.iframe) t.iframe.style.display = 'none';
     });
-    if (tab.iframe) tab.iframe.style.display = 'block';
+    if (tab.iframe) {
+      tab.iframe.style.display = 'block';
+      tab.iframe.classList.remove('bunny-page-enter');
+      void tab.iframe.offsetWidth;
+      tab.iframe.classList.add('bunny-page-enter');
+    }
   }
 
   function renderTabs() {
@@ -2653,21 +2812,32 @@ function createBrowserUI(body) {
     state.tabs.forEach(function(t, i) {
       var el = document.createElement('div');
       var on = i === state.active;
-      el.style.cssText = 'display:flex;align-items:center;gap:6px;padding:9px 12px;max-width:180px;min-width:100px;cursor:pointer;border-radius:10px 10px 0 0;font-size:12px;font-weight:500;' +
-        (on ? 'background:var(--surface);color:var(--text);border:1px solid var(--border);border-bottom-color:var(--surface)' : 'background:transparent;color:var(--dim);border:1px solid transparent');
-      el.innerHTML = '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+      el.className = 'bunny-browser-tab' + (on ? ' is-active' : '');
+      el.dataset.tabIndex = String(i);
+      el.setAttribute('role', 'tab');
+      el.setAttribute('aria-selected', on ? 'true' : 'false');
+      el.setAttribute('aria-label', (t.title || 'New Tab') + (on ? ', active tab' : ', switch to tab'));
+      el.tabIndex = on ? 0 : -1;
+      el.style.cssText = 'position:relative;isolation:isolate;display:flex;align-items:center;gap:7px;padding:9px 12px 10px;max-width:210px;min-width:120px;height:35px;flex-shrink:0;cursor:pointer;border-radius:10px 10px 0 0;font-size:12px;line-height:1.2;font-weight:'+(on?'700':'500')+';background:'+(on?'#ffffff':'#d9dde5')+';color:'+(on?'#202431':'#555d6c')+';border:1px solid '+(on?'#ffffff':'#d0d5df')+';border-bottom-color:'+(on?'#ffffff':'#d0d5df')+';box-shadow:'+(on?'0 -1px 4px rgba(30,38,55,.06)':'inset 0 -1px 0 rgba(80,90,110,.06)')+';transition:background .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease;';
+      el.innerHTML = '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none">' +
         String(t.title || 'New Tab').replace(/</g, '&lt;') +
-        '</span><span data-close style="width:18px;height:18px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--faint);font-size:14px">×</span>';
+        '</span><span data-close role="button" aria-label="Close tab" style="width:20px;height:20px;flex:0 0 20px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:'+(on?'#626a78':'#939aa7')+';font-size:16px;line-height:1;transition:background .16s,color .16s;">×</span>';
       el.onclick = function(e) {
-        if (e.target.getAttribute('data-close') != null || e.target.closest('[data-close]')) closeTab(i);
-        else switchTab(i);
+        var closeTarget = e.target && (e.target.getAttribute('data-close') != null || (e.target.closest && e.target.closest('[data-close]')));
+        if (closeTarget) { e.stopPropagation(); closeTab(Number(el.dataset.tabIndex)); }
+        else switchTab(Number(el.dataset.tabIndex));
       };
+      el.onkeydown = function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); switchTab(Number(el.dataset.tabIndex)); } };
       tabsEl.appendChild(el);
+      if (t.justAdded) { el.classList.add('bunny-tab-enter'); t.justAdded = false; }
     });
     var nt = document.createElement('div');
     nt.textContent = '+';
     nt.title = 'New tab';
     nt.style.cssText = 'width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--dim);cursor:pointer;margin-bottom:4px';
+    nt.style.cssText += ';flex-shrink:0;transition:background .18s ease,transform .18s ease';
+    nt.onmouseenter = function(){nt.style.background='var(--accent-soft)';nt.style.transform='scale(1.06)'};
+    nt.onmouseleave = function(){nt.style.background='transparent';nt.style.transform='scale(1)'};
     nt.onclick = function() { addTab(); };
     tabsEl.appendChild(nt);
   }
@@ -2680,7 +2850,8 @@ function createBrowserUI(body) {
       history: [],
       histIdx: -1,
       iframe: makeFrame(),
-      isHome: true
+      isHome: true,
+      justAdded: true
     };
     state.tabs.push(tab);
     state.active = state.tabs.length - 1;
@@ -2709,22 +2880,43 @@ function createBrowserUI(body) {
       switchTab(0);
       return;
     }
-    if (tab.iframe && tab.iframe.parentNode) tab.iframe.parentNode.removeChild(tab.iframe);
+    if (tab.iframe) { try { tab.iframe.remove(); } catch (e) {} }
     state.tabs.splice(i, 1);
     if (state.active >= state.tabs.length) state.active = state.tabs.length - 1;
     else if (state.active > i) state.active--;
-    switchTab(state.active);
+    // Rebuild the strip immediately after removal, then show the selected tab.
+    renderTabs();
+    switchTab(Math.max(0, state.active));
   }
 
   function switchTab(i) {
     if (i < 0 || i >= state.tabs.length) return;
+    var previous = state.active;
     state.active = i;
-    var tab = state.tabs[i];
+    var tab = state.tabs[state.active];
     showFrame(tab);
     urlInput().value = tab.url || '';
     lockEl().textContent = 'WEB';
     status.textContent = tab.isHome ? 'Search only · websites usually will not load here' : (tab.url || 'Bunny Browser');
     renderTabs();
+    // Apply active state from the authoritative state after rebuilding the DOM.
+    tabsEl.querySelectorAll('[data-tab-index]').forEach(function(node) {
+      var activeNow = Number(node.dataset.tabIndex) === state.active;
+      node.classList.toggle('is-active', activeNow);
+      node.setAttribute('aria-selected', activeNow ? 'true' : 'false');
+      node.tabIndex = activeNow ? 0 : -1;
+      node.style.background = activeNow ? '#ffffff' : '#d9dde5';
+      node.style.color = activeNow ? '#202431' : '#555d6c';
+      node.style.borderColor = activeNow ? '#ffffff' : '#cbd1dc';
+      node.style.borderBottomColor = activeNow ? '#ffffff' : '#cbd1dc';
+      node.style.fontWeight = activeNow ? '750' : '500';
+      node.style.boxShadow = activeNow ? '0 -2px 8px rgba(30,38,55,.10)' : 'inset 0 -1px 0 rgba(80,90,110,.08)';
+      node.style.zIndex = activeNow ? '3' : '1';
+    });
+    if (previous !== state.active) {
+      var activeEl = tabsEl.querySelector('[data-tab-index="' + state.active + '"]');
+      if (activeEl) { activeEl.classList.remove('bunny-tab-switch'); void activeEl.offsetWidth; activeEl.classList.add('bunny-tab-switch'); }
+    }
   }
 
   function showHome(tab) {
@@ -3290,46 +3482,46 @@ function renderAppContent(id) {
     if (viewMode !== 'liked') viewMode = 'all';
 
     body.innerHTML =
-      '<div style="height:100%;display:flex;flex-direction:column;background:#0d0d0d;color:var(--text);font-family:system-ui,sans-serif">' +
+      '<div style="height:100%;display:flex;flex-direction:column;background:#ffffff;color:#252936;font-family:system-ui,sans-serif">' +
       '<div style="display:flex;flex:1;min-height:0">' +
       /* sidebar */
-      '<div style="width:210px;flex-shrink:0;background:var(--bg);padding:18px 12px;display:flex;flex-direction:column;gap:4px;border-right:1px solid #1a1a1a">' +
-      '<div style="padding:4px 12px 18px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;color:var(--text)">' + SVG_NOTE + ' Music</div>' +
-      '<button data-view="all" class="mus-nav" style="text-align:left;padding:12px 14px;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;background:transparent;color:var(--dim)">All Songs</button>' +
-      '<button data-view="liked" class="mus-nav" style="text-align:left;padding:12px 14px;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;background:transparent;color:var(--dim)">Liked Songs</button>' +
+      '<div style="width:210px;flex-shrink:0;background:#f7f8fb;padding:18px 12px;display:flex;flex-direction:column;gap:4px;border-right:1px solid #e2e6ee">' +
+      '<div style="padding:4px 12px 18px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;color:#252936">' + SVG_NOTE + ' Music</div>' +
+      '<button data-view="all" class="mus-nav" style="text-align:left;padding:12px 14px;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;background:transparent;color:#737b8c">All Songs</button>' +
+      '<button data-view="liked" class="mus-nav" style="text-align:left;padding:12px 14px;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;background:transparent;color:#737b8c">Liked Songs</button>' +
       '</div>' +
       /* main */
-      '<div style="flex:1;display:flex;flex-direction:column;min-width:0;background:linear-gradient(180deg,rgba(232,90,122,.22) 0%,#121212 180px)">' +
+      '<div style="flex:1;display:flex;flex-direction:column;min-width:0;background:linear-gradient(180deg,#ffffff 0%,#ffffff 180px)">' +
       '<div style="padding:22px 28px 10px;display:flex;align-items:flex-end;gap:18px">' +
-      '<div id="musHero" style="width:120px;height:120px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#1a1a1a);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px rgba(0,0,0,.5);color:var(--text);flex-shrink:0">' + SVG_NOTE + '</div>' +
+      '<div id="musHero" style="width:120px;height:120px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#e2e6ee);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px rgba(35,43,58,.10);color:#252936;flex-shrink:0">' + SVG_NOTE + '</div>' +
       '<div style="min-width:0;padding-bottom:4px">' +
-      '<div style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text);text-transform:uppercase">Library</div>' +
+      '<div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#252936;text-transform:uppercase">Library</div>' +
       '<div id="musTitle" style="font-size:32px;font-weight:800;letter-spacing:-0.5px;margin:6px 0 8px;line-height:1.1">All Songs</div>' +
-      '<div id="musMeta" style="font-size:13px;color:var(--dim)">0 songs</div></div></div>' +
+      '<div id="musMeta" style="font-size:13px;color:#737b8c">0 songs</div></div></div>' +
       '<div style="padding:8px 28px 12px;display:flex;align-items:center;gap:12px">' +
-      '<button id="musPlayAll" style="width:48px;height:48px;border-radius:50%;border:none;background:var(--accent);color:#000;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35)">' + SVG_PLAY + '</button>' +
-      '<div style="flex:1;max-width:320px;display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;min-height:40px">' +
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>' +
-      '<input id="musicSearch" placeholder="Search songs…" spellcheck="false" style="flex:1;border:none;background:transparent;color:var(--text);font-size:13px;outline:none;min-width:0;font-family:var(--font)"/></div></div>' +
-      '<div style="padding:0 16px;display:grid;grid-template-columns:40px 1fr 44px 56px;gap:8px;align-items:center;font-size:11px;color:var(--dim);border-bottom:1px solid #282828;padding-bottom:8px;margin:0 12px">' +
+      '<button id="musPlayAll" style="width:48px;height:48px;border-radius:50%;border:none;background:var(--accent);color:#000;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(35,43,58,.12)">' + SVG_PLAY + '</button>' +
+      '<div style="flex:1;max-width:320px;display:flex;align-items:center;gap:10px;background:#ffffff;border:1px solid #e2e6ee;border-radius:12px;padding:10px 14px;min-height:40px">' +
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737b8c" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>' +
+      '<input id="musicSearch" placeholder="Search songs…" spellcheck="false" style="flex:1;border:none;background:transparent;color:#252936;font-size:13px;outline:none;min-width:0;font-family:var(--font)"/></div></div>' +
+      '<div style="padding:0 16px;display:grid;grid-template-columns:40px 1fr 44px 56px;gap:8px;align-items:center;font-size:11px;color:#737b8c;border-bottom:1px solid #e2e6ee;padding-bottom:8px;margin:0 12px">' +
       '<span>#</span><span>TITLE</span><span></span><span style="text-align:right">TIME</span></div>' +
       '<div id="musicList" style="flex:1;overflow:auto;padding:4px 12px 16px"></div></div></div>' +
       /* player bar */
-      '<div style="height:88px;flex-shrink:0;background:var(--surface2);border-top:1px solid #282828;display:grid;grid-template-columns:1fr 1.5fr 1fr;align-items:center;padding:0 16px;gap:12px">' +
+      '<div style="height:88px;flex-shrink:0;background:#ffffff;border-top:1px solid #e2e6ee;display:grid;grid-template-columns:1fr 1.5fr 1fr;align-items:center;padding:0 16px;gap:12px">' +
       '<div style="display:flex;align-items:center;gap:12px;min-width:0">' +
-      '<div id="musicArt" style="width:52px;height:52px;border-radius:6px;background:var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--accent)">' + SVG_NOTE + '</div>' +
+      '<div id="musicArt" style="width:52px;height:52px;border-radius:6px;background:#e2e6ee;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--accent)">' + SVG_NOTE + '</div>' +
       '<div style="min-width:0;flex:1"><div id="musicTitle" style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Not playing</div>' +
-      '<div id="musicSub" style="font-size:11px;color:var(--dim);margin-top:2px">Select a song</div></div>' +
-      '<button id="musicLikeNow" title="Like" style="border:none;background:transparent;color:var(--dim);cursor:pointer;padding:6px;display:flex;align-items:center">' + SVG_HEART + '</button></div>' +
+      '<div id="musicSub" style="font-size:11px;color:#737b8c;margin-top:2px">Select a song</div></div>' +
+      '<button id="musicLikeNow" title="Like" style="border:none;background:transparent;color:#737b8c;cursor:pointer;padding:6px;display:flex;align-items:center">' + SVG_HEART + '</button></div>' +
       '<div style="display:flex;flex-direction:column;align-items:center;gap:6px">' +
       '<div style="display:flex;align-items:center;gap:18px">' +
-      '<button id="musicPrev" type="button" style="width:32px;height:32px;border:none;background:transparent;color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">' + SVG_PREV + '</button>' +
-      '<button id="musicPlay" type="button" style="width:36px;height:36px;border:none;border-radius:50%;background:#fff;color:#000;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">' + SVG_PLAY + '</button>' +
-      '<button id="musicNext" type="button" style="width:32px;height:32px;border:none;background:transparent;color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">' + SVG_NEXT + '</button></div>' +
+      '<button id="musicPrev" type="button" style="width:32px;height:32px;border:none;background:transparent;color:#737b8c;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">' + SVG_PREV + '</button>' +
+      '<button id="musicPlay" type="button" style="width:36px;height:36px;border:none;border-radius:50%;background:var(--accent);color:#ffffff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">' + SVG_PLAY + '</button>' +
+      '<button id="musicNext" type="button" style="width:32px;height:32px;border:none;background:transparent;color:#737b8c;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">' + SVG_NEXT + '</button></div>' +
       '<div style="display:flex;align-items:center;gap:8px;width:100%;max-width:480px">' +
-      '<span id="musicCur" style="font-size:11px;color:var(--dim);width:36px;text-align:right;font-variant-numeric:tabular-nums">0:00</span>' +
-      '<div id="musicBar" style="flex:1;height:4px;background:#4d4d4d;border-radius:2px;cursor:pointer;overflow:hidden"><div id="musicFill" style="height:100%;width:0%;background:#fff;border-radius:2px"></div></div>' +
-      '<span id="musicDur" style="font-size:11px;color:var(--dim);width:36px;font-variant-numeric:tabular-nums">0:00</span></div></div><div></div></div></div>';
+      '<span id="musicCur" style="font-size:11px;color:#737b8c;width:36px;text-align:right;font-variant-numeric:tabular-nums">0:00</span>' +
+      '<div id="musicBar" style="flex:1;height:4px;background:#dfe3eb;border-radius:2px;cursor:pointer;overflow:hidden"><div id="musicFill" style="height:100%;width:0%;background:#fff;border-radius:2px"></div></div>' +
+      '<span id="musicDur" style="font-size:11px;color:#737b8c;width:36px;font-variant-numeric:tabular-nums">0:00</span></div></div><div></div></div></div>';
 
     var listEl = body.querySelector('#musicList');
     var searchEl = body.querySelector('#musicSearch');
@@ -3362,10 +3554,10 @@ function renderAppContent(id) {
       var btn = body.querySelector('#musicLikeNow');
       if (!btn) return;
       var t = MUSIC.index >= 0 ? MUSIC.tracks[MUSIC.index] : null;
-      if (!t) { btn.innerHTML = SVG_HEART; btn.style.color = '#b3b3b3'; return; }
+      if (!t) { btn.innerHTML = SVG_HEART; btn.style.color = 'var(--dim)'; return; }
       var on = isLiked(t.id);
       btn.innerHTML = on ? SVG_HEART_ON : SVG_HEART;
-      btn.style.color = on ? 'var(--accent)' : '#b3b3b3';
+      btn.style.color = on ? 'var(--accent)' : 'var(--dim)';
     }
     function libraryTracks() { return MUSIC.tracks || []; }
     function visibleTracks() {
@@ -3378,8 +3570,8 @@ function renderAppContent(id) {
     function renderNav() {
       body.querySelectorAll('.mus-nav').forEach(function(btn) {
         var on = btn.getAttribute('data-view') === viewMode;
-        btn.style.background = on ? '#282828' : 'transparent';
-        btn.style.color = on ? '#fff' : '#b3b3b3';
+        btn.style.background = on ? 'var(--accent-soft)' : 'transparent';
+        btn.style.color = on ? 'var(--text)' : 'var(--dim)';
       });
       body.querySelector('#musTitle').textContent = viewMode === 'liked' ? 'Liked Songs' : 'All Songs';
       var n = visibleTracks().length;
@@ -4081,7 +4273,7 @@ function renderAppContent(id) {
       '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
       '<div style="flex:1"><div style="font-size:16px;font-weight:700">Games</div>' +
       '<div id="gamesCount" style="font-size:11px;color:var(--faint);margin-top:2px">Loading…</div></div></div>' +
-      '<div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;min-height:40px">' +
+      '<div class="search-field" style="width:100%;min-height:44px">' +
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>' +
       '<input id="gamesSearch" placeholder="Search games…" spellcheck="false" style="flex:1;border:none;background:transparent;color:var(--text);font-size:13px;outline:none;min-width:0;font-family:var(--font)"/></div></div>' +
       '<div id="gamesList" style="flex:1;overflow:auto;padding:12px"></div></div>';
@@ -4337,3 +4529,30 @@ if (!window.__vosSkipBoot) {
 </script>
 </body>
 </html>
+
+/* Final fixes: white Music canvas, reliable active browser tabs, and a proportional native caret. */
+.window:has(#musicList),
+.window:has(#musicList) .window-body,
+.window:has(#musicList) .window-content,
+.window:has(#musicList) .window-body > div,
+.window:has(#musicList) .akko-music-shell,
+.window:has(#musicList) .akko-music-stage { background:#fff!important; color:#252936!important; }
+.window:has(#musicList) .akko-music-shell [style*="background:#111"],
+.window:has(#musicList) .akko-music-shell [style*="background: #111"],
+.window:has(#musicList) .akko-music-shell [style*="background:#171"],
+.window:has(#musicList) .akko-music-shell [style*="background: #171"] { background:#fff!important; color:#252936!important; }
+.window:has(#musicList) [style*="height:88px"] { background:#fff!important; border-top:1px solid #e5e7ed!important; }
+.window:has(#musicList) #musicList { color:#252936!important; }
+.window:has(#musicList) #musicList > div { color:#252936!important; }
+.bunny-browser-tab.is-active { background:#fff!important; color:#202431!important; border-color:#fff!important; box-shadow:0 -2px 8px rgba(30,38,55,.10)!important; font-weight:750!important; z-index:3!important; }
+.bunny-browser-tab:not(.is-active) { background:#d9dde5!important; color:#555d6c!important; }
+.bunny-browser-tab.is-active:after { content:""!important; display:block!important; position:absolute!important; height:3px!important; left:14px!important; right:14px!important; bottom:-1px!important; border-radius:4px 4px 0 0!important; background:var(--accent)!important; }
+.window input#musicSearch,.window input#gamesSearch,.window input[data-url],.window .search-field input { font-size:16px!important; line-height:1.2!important; height:1.5em!important; min-height:24px!important; padding-top:0!important; padding-bottom:0!important; caret-color:var(--accent)!important; font-family:Inter,system-ui,sans-serif!important; }
+
+<style id="bunny-final-tab-contrast">
+.bunny-browser-tab{transition:background .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease!important}
+.bunny-browser-tab.is-active{background:#fff!important;color:#202431!important;border-color:#fff!important;border-bottom-color:#fff!important;box-shadow:0 -2px 8px rgba(30,38,55,.12)!important;font-weight:750!important;z-index:5!important}
+.bunny-browser-tab:not(.is-active){background:#cfd4df!important;color:#4b5362!important;border-color:#c3c9d5!important}
+.bunny-browser-tab.is-active:after{content:""!important;display:block!important;position:absolute!important;height:3px!important;left:14px!important;right:14px!important;bottom:-1px!important;border-radius:4px 4px 0 0!important;background:var(--accent)!important}
+.bunny-tab-enter{animation:bunnyTabEnter .22s ease-out both}.bunny-tab-switch{animation:bunnyTabSwitch .18s ease-out both}@keyframes bunnyTabEnter{from{opacity:0;transform:translateY(7px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes bunnyTabSwitch{from{filter:brightness(.94);transform:translateY(2px)}to{filter:brightness(1);transform:translateY(0)}}
+</style>
