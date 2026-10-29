@@ -2805,6 +2805,20 @@ function createBrowserUI(body) {
   tabsEl.className = 'bunny-browser-tabs';
   tabsEl.style.cssText = 'display:flex;align-items:flex-end;gap:2px;padding:7px 9px 0;background:#e4e7ed;border-bottom:1px solid #cbd0da;min-height:42px;overflow-x:auto;flex-shrink:0';
 
+  // Capture tab selection before child click handlers run, so the visible tab and
+  // the displayed page always follow the tab the user actually presses.
+  tabsEl.addEventListener('pointerdown', function(e) {
+    var close = e.target && e.target.closest ? e.target.closest('[data-close]') : null;
+    if (close) return;
+    var tabEl = e.target && e.target.closest ? e.target.closest('.bunny-browser-tab[data-tab-index]') : null;
+    if (!tabEl || !tabsEl.contains(tabEl)) return;
+    var idx = Number(tabEl.dataset.tabIndex);
+    if (Number.isInteger(idx) && idx >= 0 && idx < state.tabs.length && idx !== state.active) {
+      e.preventDefault();
+      switchTab(idx);
+    }
+  }, true);
+
   const nav = document.createElement('div');
   nav.className = 'bunny-browser-toolbar';
   nav.style.cssText = 'display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0';
@@ -4873,9 +4887,20 @@ if (!window.__vosSkipBoot) {
 .btn-media-fullscreen:hover{background:var(--accent-soft);transform:scale(1.06)}
 .bunny-media-window:fullscreen,.bunny-media-window:-webkit-full-screen{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:0!important;transform:none!important;z-index:2147483000!important}
 .bunny-media-window:fullscreen .window-body,.bunny-media-window:-webkit-full-screen .window-body{height:auto!important;min-height:0!important;flex:1 1 auto!important}
+/* True fullscreen: hide the Bunny OS title bar (episode name + window controls) and let the media fill the screen. */
+.bunny-media-window:fullscreen > .titlebar,.bunny-media-window:-webkit-full-screen > .titlebar{display:none!important}
+.bunny-media-window:fullscreen > .window-body,.bunny-media-window:-webkit-full-screen > .window-body{width:100vw!important;height:100vh!important;max-height:none!important;padding:0!important;margin:0!important;overflow:hidden!important;flex:1 1 100%!important}
+.bunny-media-window:fullscreen > .window-body > iframe,.bunny-media-window:-webkit-full-screen > .window-body > iframe{width:100%!important;height:100%!important;max-height:none!important;display:block!important;border:0!important}
 
 /* Browser tab active indicator is tied strictly to the current .is-active tab. */
 .bunny-browser-tabs .bunny-browser-tab.is-active{position:relative!important;z-index:8!important;background:#fff!important;color:#202431!important;border-color:#fff!important;box-shadow:0 -2px 8px rgba(30,38,55,.12)!important}
 .bunny-browser-tabs .bunny-browser-tab:not(.is-active):after{display:none!important;content:none!important}
 .bunny-browser-tabs .bunny-browser-tab.is-active:after{content:""!important;display:block!important;position:absolute!important;left:14px!important;right:14px!important;bottom:-1px!important;height:3px!important;border-radius:4px 4px 0 0!important;background:var(--accent)!important}
+</style>
+<style>
+/* Final tab state safeguard: only the selected tab receives the pink underline. */
+.bunny-browser-tabs .bunny-browser-tab.is-active{background:#fff!important;color:#202431!important;z-index:8!important;box-shadow:0 -2px 8px rgba(30,38,55,.12)!important}
+.bunny-browser-tabs .bunny-browser-tab:not(.is-active){background:#cfd4df!important;color:#4b5362!important}
+.bunny-browser-tabs .bunny-browser-tab:not(.is-active)::after{display:none!important;content:none!important}
+.bunny-browser-tabs .bunny-browser-tab.is-active::after{display:block!important;content:''!important;position:absolute!important;left:14px!important;right:14px!important;bottom:-1px!important;height:3px!important;border-radius:4px 4px 0 0!important;background:var(--accent)!important}
 </style>
