@@ -299,14 +299,21 @@ html, body { height:100%; overflow:hidden; font-family:var(--font); background:v
   position:absolute; inset:0; z-index:0;
   width: 100%; height: 100%;
   object-fit: cover;
+  object-position: center center;
   pointer-events: none;
   display: none;
   opacity: 0;
   transition: opacity .7s cubic-bezier(.4,0,.2,1);
+  background: transparent;
 }
 #wallpaperVideo.show {
-  display: block;
-  opacity: 1;
+  display: block !important;
+  opacity: 1 !important;
+  z-index: 0;
+}
+#desktop.has-wall-video #wallpaperVideo.show {
+  display: block !important;
+  opacity: 1 !important;
 }
 #wallpaper::after { display: none !important; content: none !important; }
 #desktop > .wall-shade { display: none !important; opacity: 0 !important; }
@@ -1339,6 +1346,30 @@ input#gamesSearch::placeholder, input#musicSearch::placeholder, input[data-url]:
 
 .window:has(#showsContent) .shows-loading{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#303747;text-align:center;animation:showsFadeIn .35s ease both}.shows-loading strong{font-size:14px;font-weight:800;letter-spacing:-.2px}.shows-loading small{font-size:11px;color:#8a91a0}.shows-loader-orbit{position:relative;width:52px;height:52px;border:2px solid rgba(130,140,160,.16);border-top-color:var(--accent);border-radius:50%;animation:showsSpin 1s linear infinite}.shows-loader-orbit:before,.shows-loader-orbit:after{content:"";position:absolute;border-radius:50%;border:2px solid transparent}.shows-loader-orbit:before{inset:6px;border-right-color:var(--accent);animation:showsSpin .8s linear infinite reverse}.shows-loader-orbit:after{width:7px;height:7px;background:var(--accent);top:3px;left:7px;box-shadow:0 0 15px var(--accent-soft)}.window:has(#showsContent) .shows-grid{padding-bottom:18px}.window:has(#showsContent) .shows-card{overflow:hidden;isolation:isolate}.window:has(#showsContent) .shows-card-poster{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;position:relative;border-radius:14px 14px 0 0;animation:showsPosterIn .35s ease both}.window:has(#showsContent) .shows-card-title{margin-top:12px!important}.window:has(#showsContent) .shows-episodes{max-width:100%!important;gap:12px!important}.window:has(#showsContent) .shows-episode{display:flex!important;min-height:78px!important;gap:14px!important;padding:13px 16px!important;border-radius:16px!important;background:rgba(255,255,255,.94)!important;border:1px solid #e8eaf0!important;box-shadow:0 3px 12px rgba(30,40,60,.035)!important;text-align:left!important;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important}.window:has(#showsContent) .shows-episode:hover{transform:translateY(-2px)!important;box-shadow:0 12px 26px rgba(30,40,60,.09)!important;border-color:var(--accent)!important}.window:has(#showsContent) .shows-episode-number{width:48px!important;height:48px!important;display:grid!important;place-items:center!important;border-radius:15px!important;background:linear-gradient(145deg,var(--accent-soft),#f1f3f9)!important;font-size:15px!important;font-weight:800!important;flex-shrink:0!important}.window:has(#showsContent) .shows-episode-copy{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:5px!important;min-width:0!important;flex:1!important}.window:has(#showsContent) .shows-episode-copy strong{font-size:14px!important;color:#242a38!important;white-space:normal!important;line-height:1.35!important}.window:has(#showsContent) .shows-episode-copy small{font-size:11px!important;color:#8b93a3!important}.window:has(#showsContent) .shows-play{display:inline-flex!important;align-items:center!important;gap:7px!important;padding:10px 14px!important;border-radius:12px!important;background:var(--accent)!important;color:white!important;font-size:11px!important;font-weight:800!important;white-space:nowrap!important;align-self:center!important}.window:has(#showsContent) .shows-player-title{font-size:20px!important;font-weight:800!important;letter-spacing:-.4px!important}.window:has(#showsContent) .shows-drive-frame{width:100%!important;aspect-ratio:16/9!important;min-height:300px!important;overflow:hidden!important;border-radius:18px!important;background:#08090d!important}.window:has(#showsContent) .shows-drive-frame iframe{width:100%!important;height:100%!important;border:0!important;display:block!important}.window:has(#showsContent) .shows-player{animation:showsFadeIn .28s ease both}.window:has(#showsContent) .shows-card-icon{aspect-ratio:3/4!important;display:grid!important;place-items:center!important;border-radius:14px!important;background:linear-gradient(145deg,#f4e7ee,#e8edf8 60%,#f7e9de)!important}.window:has(#showsContent) .shows-card-icon svg{width:48px!important;height:48px!important;opacity:.8}
 @keyframes showsSpin{to{transform:rotate(360deg)}}@keyframes showsFadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes showsPosterIn{from{opacity:0;transform:scale(1.025)}to{opacity:1;transform:scale(1)}}@media(prefers-reduced-motion:reduce){.shows-loader-orbit,.shows-loader-orbit:before,.shows-loading,.shows-poster-in{animation:none!important}}
+
+.boot-start-button {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity .35s ease, transform .35s ease, visibility .35s;
+}
+.boot-start-button.boot-ready {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.boot-enter-caption {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .35s ease, visibility .35s;
+}
+.boot-enter-caption.boot-ready {
+  opacity: 1;
+  visibility: visible;
+}
+
 </style>
 
 <style id="bunny-tab-indicator-fix">
@@ -1381,7 +1412,7 @@ input#gamesSearch::placeholder, input#musicSearch::placeholder, input[data-url]:
     <div class="boot-line" id="bootLine">Welcome to Bunny OS.</div>
     <div class="boot-whisper" id="bootWhisper">Your games, music, and desktop — all in one place.</div>
     <div class="boot-progress-wrap" role="progressbar" aria-label="Bunny OS ready" aria-valuemin="0" aria-valuemax="100"><div class="boot-progress" id="bootProgress"></div></div>
-    <button type="button" id="bootStartButton" class="boot-start-button">Enter Bunny OS <span class="ui-arrow-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg></span></button>
+    <button type="button" id="bootStartButton" class="boot-start-button" disabled aria-hidden="true">Enter Bunny OS <span class="ui-arrow-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg></span></button>
     <div class="boot-enter-caption"><span class="boot-keycap" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 7v5H4m0 0 4-4m-4 4 4 4M4 12h11a4 4 0 0 0 4-4V5"/></svg></span> Press Enter to start</div>
     <div class="boot-status-row"><span class="boot-status-dot"></span><span class="boot-status-caption">BUNNY OS IS READY</span><span class="boot-status-version">OS · 1.0</span></div>
   </div>
@@ -1419,7 +1450,7 @@ input#gamesSearch::placeholder, input#musicSearch::placeholder, input[data-url]:
 </div>
 
 <div id="desktop">
-  <video id="wallpaperVideo" muted playsinline loop autoplay></video>
+  <video id="wallpaperVideo" muted playsinline loop autoplay preload="auto" webkit-playsinline></video>
   <div id="wallpaper"></div>
   <div id="wallpaperNext" aria-hidden="true"></div>
   <div class="wall-shade" aria-hidden="true"></div>
@@ -2029,68 +2060,160 @@ function assetUrl(rel) {
 function probeImage(url) {
   return new Promise(function(resolve) {
     var img = new Image();
-    img.onload = function() { resolve(true); };
-    img.onerror = function() { resolve(false); };
+    var done = false;
+    function fin(ok) { if (done) return; done = true; resolve(!!ok); }
+    img.onload = function() { fin(true); };
+    img.onerror = function() { fin(false); };
+    setTimeout(function() { fin(false); }, 8000);
     img.src = url;
   });
 }
+
 function probeVideo(url) {
   return new Promise(function(resolve) {
     var v = document.createElement('video');
     var done = false;
-    function fin(ok) { if (done) return; done = true; resolve(ok); }
-    v.preload = 'metadata';
+    function fin(ok) {
+      if (done) return;
+      done = true;
+      try { v.removeAttribute('src'); v.load(); } catch (e) {}
+      resolve(!!ok);
+    }
+    v.preload = 'auto';
     v.muted = true;
+    v.playsInline = true;
+    v.setAttribute('muted', '');
+    v.setAttribute('playsinline', '');
     v.onloadeddata = function() { fin(true); };
     v.onloadedmetadata = function() { fin(true); };
+    v.oncanplay = function() { fin(true); };
     v.onerror = function() { fin(false); };
-    setTimeout(function() { fin(false); }, 2500);
-    v.src = url;
+    setTimeout(function() { fin(false); }, 10000);
+    try { v.src = url; v.load(); } catch (e) { fin(false); }
   });
 }
 
-/** Try home.png / home.jpg / home.mp4 (and assets/home.*) as wallpaper. */
+/** Try home.png / home.jpg / home.mp4 (and assets/home.*) as wallpaper. MP4 loops. */
 async function loadHomeWallpaper() {
   var wall = document.getElementById('wallpaper');
   var wallVid = document.getElementById('wallpaperVideo');
   var desk = document.getElementById('desktop');
   var candidates = [
-    'home.mp4', 'home.webm', 'home.png', 'home.jpg', 'home.jpeg', 'home.webp',
-    'assets/home.mp4', 'assets/home.webm', 'assets/home.png', 'assets/home.jpg', 'assets/home.jpeg', 'assets/home.webp'
+    'home.mp4', 'home.webm',
+    'home.png', 'home.jpg', 'home.jpeg', 'home.webp',
+    'assets/home.mp4', 'assets/home.webm',
+    'assets/home.png', 'assets/home.jpg', 'assets/home.jpeg', 'assets/home.webp'
   ];
+
+  function bust(rel) {
+    var base = assetUrl(rel);
+    var sep = base.indexOf('?') >= 0 ? '&' : '?';
+    return base + sep + 'v=' + Date.now();
+  }
+
+  function clearVideo() {
+    if (!wallVid) return;
+    try { wallVid.pause(); } catch (e) {}
+    try { wallVid.removeAttribute('src'); wallVid.load(); } catch (e) {}
+    wallVid.classList.remove('show');
+    if (desk) desk.classList.remove('has-wall-video');
+  }
+
+  function applyImage(url, rel) {
+    clearVideo();
+    if (!wall) return rel;
+    wall.style.backgroundImage = 'url("' + url.replace(/"/g, '\\"') + '")';
+    wall.style.backgroundSize = 'cover';
+    wall.style.backgroundPosition = 'center center';
+    wall.style.backgroundRepeat = 'no-repeat';
+    wall.classList.add('has-image');
+    if (desk) desk.classList.remove('has-wall-video');
+    window.__bunnyWallpaper = rel;
+    return rel;
+  }
+
+  function applyVideo(url, rel) {
+    if (!wallVid) return null;
+    try { wallVid.pause(); } catch (e) {}
+    // Ensure looping + autoplay-friendly attributes
+    wallVid.loop = true;
+    wallVid.muted = true;
+    wallVid.autoplay = true;
+    wallVid.playsInline = true;
+    wallVid.setAttribute('loop', '');
+    wallVid.setAttribute('muted', '');
+    wallVid.setAttribute('autoplay', '');
+    wallVid.setAttribute('playsinline', '');
+    wallVid.setAttribute('webkit-playsinline', '');
+    // Backup: if loop attr is ignored, restart on end
+    wallVid.onended = function() {
+      try {
+        wallVid.currentTime = 0;
+        wallVid.play();
+      } catch (e) {}
+    };
+    wallVid.src = url;
+    try { wallVid.load(); } catch (e) {}
+    wallVid.classList.add('show');
+    if (desk) desk.classList.add('has-wall-video');
+    if (wall) {
+      wall.style.backgroundImage = 'none';
+      wall.classList.remove('has-image');
+    }
+    var tryPlay = function() {
+      var p = wallVid.play();
+      if (p && typeof p.catch === 'function') p.catch(function() {});
+    };
+    tryPlay();
+    wallVid.onloadeddata = tryPlay;
+    wallVid.oncanplay = tryPlay;
+    window.__bunnyWallpaper = rel;
+    return rel;
+  }
+
   for (var i = 0; i < candidates.length; i++) {
     var rel = candidates[i];
-    var url = assetUrl(rel) + (rel.indexOf('?') >= 0 ? '&' : '?') + 'v=bunny';
     var isVid = /\.(mp4|webm)$/i.test(rel);
-    var ok = isVid ? await probeVideo(url) : await probeImage(url);
-    if (!ok) continue;
-    if (isVid && wallVid) {
-      try { wallVid.pause(); } catch (e) {}
-      wallVid.src = url;
-      wallVid.loop = true;
-      wallVid.muted = true;
-      wallVid.classList.add('show');
-      try { await wallVid.play(); } catch (e) {}
-      if (desk) desk.classList.add('has-wall-video');
-      if (wall) { wall.style.backgroundImage = 'none'; wall.classList.remove('has-image'); }
-      window.__bunnyWallpaper = rel;
-      return rel;
-    }
-    if (!isVid && wall) {
-      if (wallVid) {
-        try { wallVid.pause(); } catch (e) {}
-        wallVid.removeAttribute('src');
-        wallVid.classList.remove('show');
+    var url = bust(rel);
+    try {
+      var ok = isVid ? await probeVideo(url) : await probeImage(url);
+      if (!ok) continue;
+      if (isVid) {
+        if (applyVideo(url, rel)) return rel;
+      } else {
+        if (applyImage(url, rel)) return rel;
       }
-      if (desk) desk.classList.remove('has-wall-video');
-      wall.style.backgroundImage = 'url("' + url + '")';
-      wall.style.backgroundSize = 'cover';
-      wall.style.backgroundPosition = 'center';
-      wall.classList.add('has-image');
-      window.__bunnyWallpaper = rel;
-      return rel;
+    } catch (e) {
+      continue;
     }
   }
+
+  // Soft fallback: try direct apply without probe (helps some hosts)
+  for (var j = 0; j < candidates.length; j++) {
+    var rel2 = candidates[j];
+    var isVid2 = /\.(mp4|webm)$/i.test(rel2);
+    var url2 = assetUrl(rel2);
+    if (isVid2 && wallVid) {
+      try {
+        var played = await new Promise(function(resolve) {
+          var done = false;
+          function fin(ok) { if (done) return; done = true; resolve(ok); }
+          wallVid.onloadeddata = function() { fin(true); };
+          wallVid.onerror = function() { fin(false); };
+          setTimeout(function() { fin(false); }, 6000);
+          applyVideo(url2, rel2);
+        });
+        if (played) return rel2;
+        clearVideo();
+      } catch (e) { clearVideo(); }
+    } else if (!isVid2 && wall) {
+      try {
+        var imgOk = await probeImage(url2);
+        if (imgOk) return applyImage(url2, rel2);
+      } catch (e) {}
+    }
+  }
+
   window.__bunnyWallpaper = null;
   return null;
 }
@@ -2187,7 +2310,9 @@ function runBoot() {
   var progress = document.getElementById('bootProgress');
   var bootLine = document.getElementById('bootLine');
   var whisper = document.getElementById('bootWhisper');
+  var enterCaption = document.querySelector('.boot-enter-caption');
   var entered = false;
+  window.__bunnyBootReady = false;
 
   function setLine(t, pct) {
     try {
@@ -2196,14 +2321,38 @@ function runBoot() {
     } catch (e) {}
   }
 
+  function hideEnter() {
+    if (startButton) {
+      startButton.classList.remove('boot-ready');
+      startButton.disabled = true;
+      startButton.setAttribute('aria-hidden', 'true');
+      startButton.style.pointerEvents = 'none';
+    }
+    if (enterCaption) enterCaption.classList.remove('boot-ready');
+  }
+
+  function showEnter() {
+    window.__bunnyBootReady = true;
+    if (startButton) {
+      startButton.disabled = false;
+      startButton.classList.add('boot-ready');
+      startButton.removeAttribute('aria-hidden');
+      startButton.style.pointerEvents = 'auto';
+    }
+    if (enterCaption) enterCaption.classList.add('boot-ready');
+  }
+
   try {
     if (bootScreen) bootScreen.classList.add('boot-reveal');
-    setLine('Starting Bunny OS…', 8);
+    hideEnter();
+    setLine('Starting Bunny OS…', 6);
     try { renderDesktopIcons(); renderStartMenu(); updateClock(); } catch (e) {}
   } catch (e) {}
 
   function enterDesktop() {
     if (entered) return;
+    // Block until boot finished loading
+    if (!window.__bunnyBootReady) return;
     entered = true;
     try {
       document.removeEventListener('keydown', onKey, true);
@@ -2217,6 +2366,7 @@ function runBoot() {
   }
 
   function onKey(e) {
+    if (!window.__bunnyBootReady) return;
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       e.stopPropagation();
@@ -2224,39 +2374,44 @@ function runBoot() {
     }
   }
   function onPointer(e) {
+    if (!window.__bunnyBootReady) return;
     var boot = document.getElementById('boot');
     if (!boot || boot.classList.contains('hidden')) return;
-    if (e.target && (e.target.closest('#bootStartButton') || e.target.closest('.boot-content') || e.target === boot || e.target.classList.contains('boot-bg'))) {
+    if (e.target && (e.target.closest('#bootStartButton') || e.target.id === 'bootStartButton')) {
       enterDesktop();
     }
   }
 
-  // Load theme + wallpaper, then enable enter
   (async function bootSequence() {
     try {
-      setLine('Loading theme…', 20);
+      setLine('Loading theme…', 18);
       applyTheme(currentTheme || 'bunny', { force: false });
-      await new Promise(function(r) { setTimeout(r, 200); });
+      await new Promise(function(r) { setTimeout(r, 180); });
 
-      setLine('Looking for wallpaper…', 40);
+      setLine('Loading wallpaper…', 35);
+      if (whisper) whisper.textContent = 'Checking for home.jpg / home.mp4…';
       var wall = null;
       try { wall = await loadHomeWallpaper(); } catch (e) { wall = null; }
 
       if (wall) {
-        setLine('Wallpaper ready · ' + wall, 65);
-        if (whisper) whisper.textContent = 'Wallpaper: ' + wall;
+        setLine('Wallpaper ready · ' + wall, 62);
+        if (whisper) whisper.textContent = (/\.(mp4|webm)$/i.test(wall) ? 'Video wallpaper looping · ' : 'Wallpaper · ') + wall;
+        // Give the video a moment to start painting
+        await new Promise(function(r) { setTimeout(r, 400); });
       } else {
-        setLine('No home wallpaper — using Bunny theme', 65);
-        if (whisper) whisper.textContent = 'Add home.png / home.jpg / home.mp4 for a custom wallpaper';
+        setLine('No home wallpaper — Bunny theme', 62);
+        if (whisper) whisper.textContent = 'Add home.png, home.jpg, or home.mp4 next to index.html';
+        await new Promise(function(r) { setTimeout(r, 200); });
       }
 
-      await new Promise(function(r) { setTimeout(r, 350); });
-      setLine('Starting services…', 82);
+      setLine('Starting apps…', 80);
       try { renderStartMenu(); updateClock(); } catch (e) {}
-      await new Promise(function(r) { setTimeout(r, 280); });
+      await new Promise(function(r) { setTimeout(r, 250); });
 
       setLine('Bunny OS is ready', 100);
       if (whisper) whisper.textContent = 'Press Enter or click to continue';
+
+      showEnter();
 
       if (startButton) {
         startButton.onclick = function(e) {
@@ -2266,23 +2421,32 @@ function runBoot() {
         };
       }
       document.addEventListener('keydown', onKey, true);
-      setTimeout(function() {
-        document.addEventListener('pointerdown', onPointer, true);
-      }, 150);
+      document.addEventListener('pointerdown', onPointer, true);
     } catch (e) {
       console.warn('boot sequence', e);
       setLine('Ready', 100);
+      showEnter();
       document.addEventListener('keydown', onKey, true);
       if (startButton) startButton.onclick = function() { enterDesktop(); };
     }
   })();
 
+  // Auto-enter only after ready, as a long failsafe
   setTimeout(function() {
     if (!entered) {
+      if (!window.__bunnyBootReady) {
+        window.__bunnyBootReady = true;
+        showEnter();
+        setLine('Bunny OS is ready', 100);
+      }
+    }
+  }, 12000);
+  setTimeout(function() {
+    if (!entered && window.__bunnyBootReady) {
       setLine('Opening Bunny OS…', 100);
       enterDesktop();
     }
-  }, 14000);
+  }, 20000);
 }
 
 
@@ -4749,27 +4913,33 @@ if (!window.__vosSkipBoot) {
       }
     }
     window.__bunnyReleaseBoot = releaseBoot;
-    /* Capture phase ensures clicks work even if a child element stops bubbling. */
-    document.addEventListener('click', function () {
+    /* Only allow skip after wallpaper/theme boot marks ready */
+    document.addEventListener('click', function (e) {
+      if (!window.__bunnyBootReady) return;
       var boot = document.getElementById('boot');
-      if (!released && boot && !boot.classList.contains('hidden')) releaseBoot();
+      if (!released && boot && !boot.classList.contains('hidden')) {
+        if (e.target && (e.target.closest('#bootStartButton') || e.target.id === 'bootStartButton')) releaseBoot();
+      }
     }, true);
     window.addEventListener('keydown', function (e) {
+      if (!window.__bunnyBootReady) return;
       var boot = document.getElementById('boot');
       if (!released && boot && !boot.classList.contains('hidden') && (e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault();
         releaseBoot();
       }
     }, true);
-    /* If wallpaper/assets or stored settings hang, reveal the desktop automatically. */
+    /* Long failsafe if something hangs forever */
     setTimeout(function () {
       var boot = document.getElementById('boot');
       if (!released && boot && !boot.classList.contains('hidden')) {
+        window.__bunnyBootReady = true;
+        var btn = document.getElementById('bootStartButton');
+        if (btn) { btn.classList.add('boot-ready'); btn.disabled = false; }
         var line = document.getElementById('bootLine');
-        if (line) line.textContent = 'Ready — opening Bunny OS…';
-        releaseBoot();
+        if (line) line.textContent = 'Ready — click Enter Bunny OS';
       }
-    }, 9000);
+    }, 15000);
   })();
 }
 </script>
