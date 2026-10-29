@@ -1326,6 +1326,16 @@ input#gamesSearch::placeholder, input#musicSearch::placeholder, input[data-url]:
 .shows-shell button{font:inherit}.shows-btn{border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);padding:9px 11px;cursor:pointer;transition:background .18s,transform .18s}.shows-btn:hover{background:var(--accent-soft)}
 @media(max-width:560px){.shows-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.shows-card{padding:11px}.shows-episode{gap:8px;padding:10px}.shows-play{padding:7px}}
     function playEpisode(show,ep){const path=show.path==='shows'?'shows/'+ep:show.path+'/'+ep;const url=urlFor(path);content.innerHTML='<div class="shows-player"><div class="shows-player-head"><button id="showsPlayerBack" class="shows-link">‹ Episodes</button><span>'+esc(clean(ep))+'</span></div><div class="shows-video-wrap"><video id="showsVideo" autoplay playsinline preload="metadata" src="'+esc(url)+'"></video><div class="shows-video-vignette"></div><div class="shows-video-controls" id="showsControls"><div class="shows-seek-row"><span id="showsCurrent">0:00</span><input id="showsSeek" aria-label="Video progress" type="range" min="0" max="1000" value="0"><span id="showsDuration">0:00</span></div><div class="shows-control-row"><button id="showsPlayPause" aria-label="Play or pause">Ⅱ</button><button id="showsBack10" aria-label="Back 10 seconds">↶ 10</button><button id="showsForward10" aria-label="Forward 10 seconds">10 ↷</button><span class="shows-control-title">'+esc(clean(ep))+'</span><button id="showsMute" aria-label="Mute">◖</button><input id="showsVolume" aria-label="Volume" type="range" min="0" max="1" step="0.05" value="1"><button id="showsFullscreen" aria-label="Fullscreen">⛶</button></div></div><button id="showsBigPlay" class="shows-big-play" aria-label="Play">▶</button></div><div class="shows-player-note">MP4, WebM, and other browser-supported formats work here. MKV playback depends on your browser and its codecs.</div></div>';content.querySelector('#showsPlayerBack').onclick=()=>openShow(show);const v=content.querySelector('#showsVideo'),wrap=content.querySelector('.shows-video-wrap'),controls=content.querySelector('#showsControls'),seek=content.querySelector('#showsSeek'),playBtn=content.querySelector('#showsPlayPause'),big=content.querySelector('#showsBigPlay'),cur=content.querySelector('#showsCurrent'),dur=content.querySelector('#showsDuration');let hideTimer;const clock=n=>{if(!isFinite(n))return '0:00';n=Math.max(0,Math.floor(n));return Math.floor(n/60)+':'+String(n%60).padStart(2,'0')};function syncPlay(){playBtn.textContent=v.paused?'▶':'Ⅱ';big.style.display=v.paused?'grid':'none';wrap.classList.toggle('is-paused',v.paused)}function reveal(){wrap.classList.add('show-controls');clearTimeout(hideTimer);if(!v.paused)hideTimer=setTimeout(()=>wrap.classList.remove('show-controls'),2300)}function toggle(){if(v.paused)v.play().catch(()=>{});else v.pause()}v.addEventListener('play',syncPlay);v.addEventListener('pause',syncPlay);v.addEventListener('timeupdate',()=>{cur.textContent=clock(v.currentTime);if(!seek.matches(':active')&&v.duration)seek.value=String(Math.round(v.currentTime/v.duration*1000))});v.addEventListener('loadedmetadata',()=>{dur.textContent=clock(v.duration)});v.addEventListener('mousemove',reveal);v.addEventListener('touchstart',reveal,{passive:true});wrap.addEventListener('mouseleave',()=>{if(!v.paused){clearTimeout(hideTimer);hideTimer=setTimeout(()=>wrap.classList.remove('show-controls'),700)}});playBtn.onclick=toggle;big.onclick=toggle;v.onclick=toggle;content.querySelector('#showsBack10').onclick=()=>v.currentTime=Math.max(0,v.currentTime-10);content.querySelector('#showsForward10').onclick=()=>v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);seek.oninput=()=>{if(v.duration)v.currentTime=(Number(seek.value)/1000)*v.duration};content.querySelector('#showsMute').onclick=()=>{v.muted=!v.muted;content.querySelector('#showsMute').textContent=v.muted?'×':'◖'};content.querySelector('#showsVolume').oninput=e=>{v.volume=Number(e.target.value);v.muted=v.volume===0};content.querySelector('#showsFullscreen').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen?.();else (wrap.requestFullscreen||wrap.webkitRequestFullscreen)?.call(wrap)};v.onerror=()=>{const note=content.querySelector('.shows-player-note');if(note)note.textContent='This browser could not play this file. MP4 with H.264 video and AAC audio is usually the most compatible; MKV support varies.'};syncPlay();reveal()}
+
+/* Media / episode / file windows: content occupies all space below the titlebar.
+   The app window itself stays windowed until the user presses Bunny OS maximize. */
+.window.bunny-media-window { display:flex!important; flex-direction:column!important; overflow:hidden!important; }
+.window.bunny-media-window > .window-body { flex:1 1 auto!important; min-height:0!important; height:0!important; padding:0!important; margin:0!important; overflow:hidden!important; display:flex!important; }
+.window.bunny-media-window > .window-body > iframe { width:100%!important; height:100%!important; min-height:0!important; flex:1 1 auto!important; display:block!important; border:0!important; }
+.window.bunny-media-window.maximized > .window-body,
+.window.bunny-media-window.snap-left > .window-body,
+.window.bunny-media-window.snap-right > .window-body { height:0!important; }
+@media(max-width:600px){.window.bunny-media-window{max-width:calc(100vw - 16px)!important;max-height:calc(100vh - 48px)!important;}}
 </style>
 </head>
 <body>
@@ -2471,7 +2481,7 @@ function openApp(id) {
   updateDock();
 }
 
-function openGameWindow(title, path) {
+function openGameWindow(title, path, directSrc) {
   const id = 'game-' + String(title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'play';
   if (openWindows[id]) {
     const w = openWindows[id];
@@ -2482,16 +2492,20 @@ function openGameWindow(title, path) {
     updateDock();
     return;
   }
-  const w = 900, h = 600;
+  // Media/game windows fill their own Bunny OS window, never the browser viewport.
+  // Keep the first-open size inside the available desktop; the normal titlebar
+  // maximize control is the only thing that expands the app window to the desktop.
+  const w = Math.max(320, Math.min(1040, window.innerWidth - 32));
+  const h = Math.max(240, Math.min(720, window.innerHeight - 104));
   const win = document.createElement('div');
-  win.className = 'window';
+  win.className = 'window bunny-media-window';
   win.id = 'win-' + id;
   win.dataset.app = id;
   const off = Object.keys(openWindows).length * 26;
   win.style.width = w + 'px';
   win.style.height = h + 'px';
-  win.style.left = Math.min(60 + off, window.innerWidth - w - 40) + 'px';
-  win.style.top = Math.min(40 + off, window.innerHeight - h - 110) + 'px';
+  win.style.left = Math.max(8, Math.min(60 + off, window.innerWidth - w - 8)) + 'px';
+  win.style.top = Math.max(32, Math.min(40 + off, window.innerHeight - h - 72)) + 'px';
   win.innerHTML = '<div class="titlebar"><div class="title-text">' + title.replace(/</g, '&lt;') + '</div><div class="win-controls"><button class="btn-min" title="Minimize"><svg viewBox="0 0 10 10"><path d="M1 5h8"/></svg></button><button class="btn-max" title="Snap / Maximize"><svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" rx="0.5"/></svg></button><button class="btn-close" title="Close"><svg viewBox="0 0 10 10"><path d="M2 2l6 6M8 2l-6 6"/></svg></button></div><div class="snap-picker"><div class="snap-layout sl-2"><div class="snap-zone" data-snap="left" title="Left"></div><div class="snap-zone" data-snap="right" title="Right"></div></div><div class="snap-layout sl-l-stack"><div class="snap-zone" data-snap="left" title="Left"></div><div class="snap-zone" data-snap="tr" title="Top right"></div><div class="snap-zone" data-snap="br" title="Bottom right"></div></div><div class="snap-layout sl-r-stack"><div class="snap-zone" data-snap="tl" title="Top left"></div><div class="snap-zone" data-snap="bl" title="Bottom left"></div><div class="snap-zone" data-snap="right" title="Right"></div></div><div class="snap-layout sl-4"><div class="snap-zone" data-snap="tl" title="Top left"></div><div class="snap-zone" data-snap="tr" title="Top right"></div><div class="snap-zone" data-snap="bl" title="Bottom left"></div><div class="snap-zone" data-snap="br" title="Bottom right"></div></div><div class="snap-layout sl-3"><div class="snap-zone" data-snap="third-l" title="Left third"></div><div class="snap-zone" data-snap="third-c" title="Center"></div><div class="snap-zone" data-snap="third-r" title="Right third"></div></div><div class="snap-layout sl-tb"><div class="snap-zone" data-snap="top" title="Top"></div><div class="snap-zone" data-snap="bottom" title="Bottom"></div></div><div class="snap-layout sl-3r"><div class="snap-zone" data-snap="row-t" title="Top row"></div><div class="snap-zone" data-snap="row-m" title="Middle row"></div><div class="snap-zone" data-snap="row-b" title="Bottom row"></div></div><div class="snap-layout sl-4c"><div class="snap-zone" data-snap="q1" title="Col 1"></div><div class="snap-zone" data-snap="q2" title="Col 2"></div><div class="snap-zone" data-snap="q3" title="Col 3"></div><div class="snap-zone" data-snap="q4" title="Col 4"></div></div><div class="snap-layout sl-max"><div class="snap-zone" data-snap="max" title="Maximize"></div></div></div></div><div class="window-body" id="body-' + id + '" style="padding:0;overflow:hidden"></div><div class="resize-handle resize-n"></div><div class="resize-handle resize-s"></div><div class="resize-handle resize-e"></div><div class="resize-handle resize-w"></div><div class="resize-handle resize-ne"></div><div class="resize-handle resize-nw"></div><div class="resize-handle resize-se"></div><div class="resize-handle resize-sw"></div>';
   document.getElementById('windows').appendChild(win);
   openWindows[id] = win;
@@ -2542,10 +2556,11 @@ function openGameWindow(title, path) {
   makeDraggable(win);
   makeResizable(win);
   const body = document.getElementById('body-' + id);
+  body.style.cssText = 'padding:0!important;overflow:hidden!important;min-height:0;display:flex;flex:1 1 auto;';
   const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'width:100%;height:100%;border:none;background:#0a080c;display:block';
+  iframe.style.cssText = 'width:100%;height:100%;min-width:0;min-height:0;flex:1 1 auto;border:0;margin:0;padding:0;background:#08090d;display:block;align-self:stretch';
   iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock allow-modals');
-  iframe.src = assetUrl(path);
+  iframe.src = directSrc || assetUrl(path);
   body.appendChild(iframe);
   focusWindow(id);
   updateDock();
@@ -2832,7 +2847,12 @@ function createBrowserUI(body) {
       '</div>' +
       '<div class="foot">Search only · most websites cannot open inside Bunny Browser</div></div>' +
       '<script>document.getElementById("hs").onsubmit=function(e){e.preventDefault();var v=document.getElementById("hi").value.trim();if(!v)return;try{parent.postMessage({type:"bunny-nav",q:v},"*")}catch(err){}};' +
-      'document.querySelectorAll("[data-q]").forEach(function(a){a.onclick=function(e){e.preventDefault();try{parent.postMessage({type:"bunny-nav",q:a.getAttribute("data-q")},"*")}catch(err){}}});<\/script></body></html>';
+      'document.querySelectorAll("[data-q]").forEach(function(a){a.onclick=function(e){e.preventDefault();try{parent.postMessage({type:"bunny-nav",q:a.getAttribute("data-q")},"*")}catch(err){}}});<\/script>
+<style id="bunny-movies-load-and-episode-polish">
+.window:has(#showsContent) .shows-loading{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#303747;text-align:center;animation:showsFadeIn .35s ease both}.shows-loading strong{font-size:14px;font-weight:800;letter-spacing:-.2px}.shows-loading small{font-size:11px;color:#8a91a0}.shows-loader-orbit{position:relative;width:52px;height:52px;border:2px solid rgba(130,140,160,.16);border-top-color:var(--accent);border-radius:50%;animation:showsSpin 1s linear infinite}.shows-loader-orbit:before,.shows-loader-orbit:after{content:"";position:absolute;border-radius:50%;border:2px solid transparent}.shows-loader-orbit:before{inset:6px;border-right-color:var(--accent);animation:showsSpin .8s linear infinite reverse}.shows-loader-orbit:after{width:7px;height:7px;background:var(--accent);top:3px;left:7px;box-shadow:0 0 15px var(--accent-soft)}.window:has(#showsContent) .shows-grid{padding-bottom:18px}.window:has(#showsContent) .shows-card{overflow:hidden;isolation:isolate}.window:has(#showsContent) .shows-card-poster{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;position:relative;border-radius:14px 14px 0 0;animation:showsPosterIn .35s ease both}.window:has(#showsContent) .shows-card-title{margin-top:12px!important}.window:has(#showsContent) .shows-episodes{max-width:100%!important;gap:12px!important}.window:has(#showsContent) .shows-episode{display:flex!important;min-height:78px!important;gap:14px!important;padding:13px 16px!important;border-radius:16px!important;background:rgba(255,255,255,.94)!important;border:1px solid #e8eaf0!important;box-shadow:0 3px 12px rgba(30,40,60,.035)!important;text-align:left!important;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important}.window:has(#showsContent) .shows-episode:hover{transform:translateY(-2px)!important;box-shadow:0 12px 26px rgba(30,40,60,.09)!important;border-color:var(--accent)!important}.window:has(#showsContent) .shows-episode-number{width:48px!important;height:48px!important;display:grid!important;place-items:center!important;border-radius:15px!important;background:linear-gradient(145deg,var(--accent-soft),#f1f3f9)!important;font-size:15px!important;font-weight:800!important;flex-shrink:0!important}.window:has(#showsContent) .shows-episode-copy{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:5px!important;min-width:0!important;flex:1!important}.window:has(#showsContent) .shows-episode-copy strong{font-size:14px!important;color:#242a38!important;white-space:normal!important;line-height:1.35!important}.window:has(#showsContent) .shows-episode-copy small{font-size:11px!important;color:#8b93a3!important}.window:has(#showsContent) .shows-play{display:inline-flex!important;align-items:center!important;gap:7px!important;padding:10px 14px!important;border-radius:12px!important;background:var(--accent)!important;color:white!important;font-size:11px!important;font-weight:800!important;white-space:nowrap!important;align-self:center!important}.window:has(#showsContent) .shows-player-title{font-size:20px!important;font-weight:800!important;letter-spacing:-.4px!important}.window:has(#showsContent) .shows-drive-frame{width:100%!important;aspect-ratio:16/9!important;min-height:300px!important;overflow:hidden!important;border-radius:18px!important;background:#08090d!important}.window:has(#showsContent) .shows-drive-frame iframe{width:100%!important;height:100%!important;border:0!important;display:block!important}.window:has(#showsContent) .shows-player{animation:showsFadeIn .28s ease both}.window:has(#showsContent) .shows-card-icon{aspect-ratio:3/4!important;display:grid!important;place-items:center!important;border-radius:14px!important;background:linear-gradient(145deg,#f4e7ee,#e8edf8 60%,#f7e9de)!important}.window:has(#showsContent) .shows-card-icon svg{width:48px!important;height:48px!important;opacity:.8}
+@keyframes showsSpin{to{transform:rotate(360deg)}}@keyframes showsFadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes showsPosterIn{from{opacity:0;transform:scale(1.025)}to{opacity:1;transform:scale(1)}}@media(prefers-reduced-motion:reduce){.shows-loader-orbit,.shows-loader-orbit:before,.shows-loading,.shows-poster-in{animation:none!important}}
+</style>
+</body></html>';
   }
 
   function makeFrame() {
@@ -3114,33 +3134,13 @@ function renderAppContent(id) {
         const ext = String(it.file).split('.').pop().toLowerCase();
         const isImage = /^(png|jpe?g|gif|webp|avif|svg)$/.test(ext);
         const isVideo = /^(mp4|webm|mov|m4v|ogv|mkv)$/.test(ext);
-        // Keep video playback inside the Bunny OS Files window; other files still open normally.
-        if (!isVideo) { el.href = assetUrl(it.path); el.target = '_blank'; el.rel = 'noopener noreferrer'; }
-        else { el.href = '#'; el.setAttribute('role','button'); }
+        // Every file opens in its own Bunny OS window, matching the Games launch behavior.
+        el.href = '#'; el.setAttribute('role','button');
         const icon = isVideo ? '▶' : isImage ? '▧' : /^(mp3|wav|ogg|flac|m4a)$/.test(ext) ? '♫' : '📄';
         if (isImage) { const img=document.createElement('img'); img.className='files-preview'; img.src=assetUrl(it.path); img.alt=''; el.appendChild(img); }
         else { const tile=document.createElement('div'); tile.className='files-preview'; tile.style.cssText='display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:23px'; tile.textContent=icon; el.appendChild(tile); }
         const label=document.createElement('span'); label.className='files-label'; label.textContent=it.title; el.appendChild(label);
-        if (isVideo) el.addEventListener('click', function(ev) {
-          ev.preventDefault();
-          let player = body.querySelector('#filesInlinePlayer');
-          if (!player) {
-            player = document.createElement('div'); player.id='filesInlinePlayer';
-            player.style.cssText='display:flex;flex-direction:column;gap:12px;min-height:0;flex:1;padding:14px;overflow:auto;background:var(--surface)';
-            grid.parentNode.insertBefore(player, grid);
-          }
-          player.innerHTML=''; player.style.display='flex'; grid.style.display='none';
-          const top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:10px;min-width:0';
-          const back=document.createElement('button'); back.type='button'; back.className='shows-btn'; back.textContent='‹ Files';
-          back.onclick=function(){const v=player.querySelector('video');if(v){v.pause();v.removeAttribute('src');v.load()}player.style.display='none';grid.style.display='grid'};
-          const title=document.createElement('div'); title.textContent=it.title; title.style.cssText='font-size:13px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0';
-          top.append(back,title); player.appendChild(top);
-          const stage=document.createElement('div'); stage.style.cssText='width:100%;max-width:860px;aspect-ratio:16/9;max-height:calc(100% - 70px);margin:0 auto;display:flex;align-items:center;justify-content:center;background:#050505;border-radius:14px;overflow:hidden;flex:none';
-          const video=document.createElement('video'); video.controls=true; video.playsInline=true; video.preload='metadata'; video.src=assetUrl(it.path); video.style.cssText='display:block;width:100%;height:100%;object-fit:contain;background:#000';
-          stage.appendChild(video); player.appendChild(stage);
-          const note=document.createElement('div'); note.textContent='Playing inside Bunny OS'; note.style.cssText='max-width:720px;width:100%;margin:0 auto;font-size:11px;color:var(--faint)'; player.appendChild(note);
-          video.play().catch(function(){});
-        });
+        el.addEventListener('click', function(ev) { ev.preventDefault(); openGameWindow(it.title, it.path); });
         grid.appendChild(el);
       });
     })();
@@ -4393,33 +4393,34 @@ function renderAppContent(id) {
       renderLibrary(search.value);
     }
     function renderLibrary(filter){const q=String(filter||'').trim().toLowerCase();current=null;crumb.style.display='none';content.innerHTML='';const shows=library.filter(s=>!q||s.name.toLowerCase().includes(q)||s.episodes.some(e=>clean(e).toLowerCase().includes(q)));subtitle.textContent=library.length+' '+(library.length===1?'show':'shows');
-      if(!shows.length){content.innerHTML='<div class="shows-empty"><strong>'+(library.length?'No matches':'No movies discovered yet')+'</strong><p>Put episodes in <code>movies/Show Name/</code>. Add <code>movies/list.txt</code> with one show-folder name per line. Inside each show folder, add <code>list.txt</code> with episode filenames in the exact order you want them displayed (with or without <code>.txt</code>); each matching <code>.txt</code> file should contain its Google Drive share link. Optional poster: <code>thumbnail.png</code> or <code>thumbnail.jpg</code>.</p></div>';return}
-      const grid=document.createElement('div');grid.className='shows-grid';shows.forEach(s=>{const card=document.createElement('button');card.type='button';card.className='shows-card';card.innerHTML='<div class="shows-card-icon">'+ICONS.shows+'</div><div class="shows-card-title">'+esc(s.name)+'</div><div class="shows-card-count">'+s.episodes.length+' '+(s.episodes.length===1?'episode':'episodes')+'</div><div class="shows-card-path">'+esc(s.path)+'</div>';const poster=document.createElement('img');poster.className='shows-card-poster';poster.alt= s.name+' thumbnail';poster.style.display='none';const candidates=['thumbnail.png','thumbnail.jpg','thumbnail.jpeg','poster.png','poster.jpg','poster.jpeg','cover.png','cover.jpg','cover.jpeg'];(async()=>{for(const file of candidates){try{const r=await fetch(urlFor(s.path+'/'+file)+'?t='+Date.now(),{method:'HEAD',cache:'no-store'});if(r.ok){poster.src=urlFor(s.path+'/'+file);poster.style.display='block';const icon=card.querySelector('.shows-card-icon');if(icon)icon.style.display='none';return}}catch(e){}}})();card.insertBefore(poster,card.firstChild);card.onclick=()=>openShow(s);grid.appendChild(card)});content.appendChild(grid)}
+      if(!shows.length){content.innerHTML='<div class="shows-empty"><strong>'+(library.length?'No matches':'No movies discovered yet')+'</strong><p>Put episodes in <code>movies/Show Name/</code>. Add <code>movies/list.txt</code> with one show-folder name per line. Inside each show folder, add <code>list.txt</code> with episode filenames in the exact order you want them displayed (with or without <code>.txt</code>); each matching <code>.txt</code> file should contain its Google Drive share link. Optional poster: <code>thumbnail.jpg</code> or <code>poster.jpg</code>.</p></div>';return}
+      const loading=document.createElement('div');loading.className='shows-loading';loading.innerHTML='<div class="shows-loader-orbit"><span></span><span></span><span></span></div><strong>Loading your library</strong><small>Getting posters ready…</small>';content.appendChild(loading);
+      const grid=document.createElement('div');grid.className='shows-grid';grid.style.opacity='0';grid.style.transition='opacity .28s ease';content.appendChild(grid);let pending=shows.length, finished=false;
+      function done(){pending--;if(pending<=0&&!finished){finished=true;loading.remove();grid.style.opacity='1';}}
+      shows.forEach(s=>{const card=document.createElement('button');card.type='button';card.className='shows-card';card.innerHTML='<div class="shows-card-icon">'+ICONS.shows+'</div><div class="shows-card-title">'+esc(s.name)+'</div><div class="shows-card-count">'+s.episodes.length+' '+(s.episodes.length===1?'episode':'episodes')+'</div><div class="shows-card-path">'+esc(s.path)+'</div>';card.onclick=()=>openShow(s);
+        const candidates=['thumbnail.jpg','poster.jpg','cover.jpg','thumbnail.jpeg','poster.jpeg','cover.jpeg','thumbnail.png','poster.png','cover.png'];
+        (async()=>{let loaded=null;for(const file of candidates){const url=urlFor(s.path+'/'+file);const img=new Image();const ok=await new Promise(resolve=>{let settled=false;const finish=v=>{if(settled)return;settled=true;resolve(v)};img.onload=()=>finish(true);img.onerror=()=>finish(false);img.src=url+'?t='+Date.now();setTimeout(()=>finish(false),3500)});if(ok&&img.naturalWidth>0){loaded=url;break;}}
+          if(loaded){const poster=document.createElement('img');poster.className='shows-card-poster';poster.alt=s.name+' poster';poster.src=loaded;poster.style.display='block';card.querySelector('.shows-card-icon')?.remove();card.insertBefore(poster,card.firstChild)}
+          grid.appendChild(card);done();
+        })();
+      });
+    }
     function openShow(show){current=show;const eps=show.episodes.slice();crumb.style.display='block';crumb.innerHTML='<button id="showsBack" class="shows-link">‹ All shows</button><span style="padding:0 7px;color:var(--faint)">/</span><b style="color:var(--text)">'+esc(show.name)+'</b>';crumb.querySelector('button').onclick=()=>renderLibrary(search.value);subtitle.textContent=eps.length+' '+(eps.length===1?'episode':'episodes');content.innerHTML='';
       if(!eps.length){content.innerHTML='<div class="shows-empty">No episodes found in this folder.</div>';return}
       const list=document.createElement('div');list.className='shows-episodes';eps.forEach((ep,i)=>{const row=document.createElement('button');row.type='button';row.className='shows-episode';row.innerHTML='<span class="shows-episode-number">▶</span><span class="shows-episode-copy"><strong>'+esc(clean(ep))+'</strong><small>'+esc(ep)+'.txt</small></span><span class="shows-play">▶ Play</span>';row.onclick=()=>playEpisode(show,ep);list.appendChild(row)});content.appendChild(list)}
     async function playEpisode(show,ep){
       const stem=String(ep).replace(/\.txt$/i,'');
       const path=show.path+'/'+stem+'.txt';
-      content.innerHTML='<div class="shows-player" id="showsPlayerShell"><div class="shows-player-head"><button id="showsPlayerBack" class="shows-link">‹ Episodes</button><div class="shows-player-title">'+esc(clean(stem))+'</div></div><div class="shows-drive-frame" id="showsDriveFrame"></div></div>';
-      content.querySelector('#showsPlayerBack').onclick=()=>openShow(show);
       let raw=await read(path);
       // Optional Base64 obfuscation for casual browsing only; this is not access control.
       raw=String(raw||'').trim();
       if(/^b64:/i.test(raw)){try{raw=atob(raw.slice(4).trim())}catch(e){raw=''}}
       const match=raw.match(/https?:\/\/[^\s"'<>]+/i);
-      const frame=content.querySelector('#showsDriveFrame');
-      if(!match){frame.innerHTML='<div style="padding:24px;text-align:center;color:var(--text)"><strong>Episode link not found</strong><p style="font-size:12px;color:var(--faint);margin-top:8px">Check '+esc(path)+' contains a Google Drive share link or a b64: encoded link.</p></div>';return;}
+      if(!match){openGameWindow(clean(stem)+' — unavailable',path);return;}
       const share=match[0].replace(/[),.;]+$/,'');let id='';
       try{const u=new URL(share);id=(u.pathname.match(/\/file\/d\/([^/]+)/)||[])[1]||u.searchParams.get('id')||'';}catch(e){}
-      if(!id){frame.innerHTML='<div style="padding:24px;text-align:center;color:var(--text)"><strong>Invalid Google Drive link</strong><p style="font-size:12px;color:var(--faint);margin-top:8px">Use a Drive share link like drive.google.com/file/d/FILE_ID/view.</p></div>';return;}
-      const iframe=document.createElement('iframe');
-      iframe.title=clean(stem);
-      iframe.src='https://drive.google.com/file/d/'+encodeURIComponent(id)+'/preview';
-      iframe.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
-      iframe.setAttribute('allowfullscreen','');
-      iframe.referrerPolicy='no-referrer';
-      frame.appendChild(iframe);
+      if(!id){openGameWindow(clean(stem)+' — invalid link',path);return;}
+      openGameWindow(clean(stem),path,'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/preview');
     }
     search.onkeydown=e=>{if(e.key==='Escape'){search.value='';search.dispatchEvent(new Event('input'));search.blur()}};search.oninput=()=>{if(current){const s=current, q=search.value.trim().toLowerCase();if(!q){openShow(s);return}openShow({...s,episodes:s.episodes.filter(e=>clean(e).toLowerCase().includes(q))})}else renderLibrary(search.value)};
     body.querySelector('#showsRefresh').onclick=load;
