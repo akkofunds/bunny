@@ -2560,11 +2560,22 @@ function openGameWindow(title, path, directSrc) {
   makeResizable(win);
   const body = document.getElementById('body-' + id);
   body.style.cssText = 'padding:0!important;overflow:hidden!important;min-height:0;display:flex;flex:1 1 auto;';
+  const mediaFrame = document.createElement('div');
+  mediaFrame.style.cssText = 'position:relative;width:100%;height:100%;min-width:0;min-height:0;flex:1 1 auto;overflow:hidden;background:#08090d;';
   const iframe = document.createElement('iframe');
   iframe.style.cssText = 'width:100%;height:100%;min-width:0;min-height:0;flex:1 1 auto;border:0;margin:0;padding:0;background:#08090d;display:block;align-self:stretch';
   iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock allow-modals');
   iframe.src = directSrc || assetUrl(path);
-  body.appendChild(iframe);
+  mediaFrame.appendChild(iframe);
+  // Google Drive preview's top-right pop-out control is covered by an invisible
+  // hit target, keeping playback inside the Bunny OS media window.
+  if (directSrc && /drive\.google\.com\/file\/d\/[^/]+\/preview/i.test(directSrc)) {
+    const popupBlocker = document.createElement('div');
+    popupBlocker.setAttribute('aria-hidden', 'true');
+    popupBlocker.style.cssText = 'position:absolute;right:0;top:0;width:80px;height:80px;border-radius:50%;opacity:0;background:transparent;z-index:5;pointer-events:auto;';
+    mediaFrame.appendChild(popupBlocker);
+  }
+  body.appendChild(mediaFrame);
   focusWindow(id);
   updateDock();
 }
