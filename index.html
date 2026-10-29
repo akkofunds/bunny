@@ -2509,12 +2509,21 @@ function openGameWindow(title, path, directSrc) {
   win.style.height = h + 'px';
   win.style.left = Math.max(8, Math.min(60 + off, window.innerWidth - w - 8)) + 'px';
   win.style.top = Math.max(32, Math.min(40 + off, window.innerHeight - h - 72)) + 'px';
-  win.innerHTML = '<div class="titlebar"><div class="title-text">' + title.replace(/</g, '&lt;') + '</div><div class="win-controls"><button class="btn-min" title="Minimize"><svg viewBox="0 0 10 10"><path d="M1 5h8"/></svg></button><button class="btn-max" title="Snap / Maximize"><svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" rx="0.5"/></svg></button><button class="btn-close" title="Close"><svg viewBox="0 0 10 10"><path d="M2 2l6 6M8 2l-6 6"/></svg></button></div><div class="snap-picker"><div class="snap-layout sl-2"><div class="snap-zone" data-snap="left" title="Left"></div><div class="snap-zone" data-snap="right" title="Right"></div></div><div class="snap-layout sl-l-stack"><div class="snap-zone" data-snap="left" title="Left"></div><div class="snap-zone" data-snap="tr" title="Top right"></div><div class="snap-zone" data-snap="br" title="Bottom right"></div></div><div class="snap-layout sl-r-stack"><div class="snap-zone" data-snap="tl" title="Top left"></div><div class="snap-zone" data-snap="bl" title="Bottom left"></div><div class="snap-zone" data-snap="right" title="Right"></div></div><div class="snap-layout sl-4"><div class="snap-zone" data-snap="tl" title="Top left"></div><div class="snap-zone" data-snap="tr" title="Top right"></div><div class="snap-zone" data-snap="bl" title="Bottom left"></div><div class="snap-zone" data-snap="br" title="Bottom right"></div></div><div class="snap-layout sl-3"><div class="snap-zone" data-snap="third-l" title="Left third"></div><div class="snap-zone" data-snap="third-c" title="Center"></div><div class="snap-zone" data-snap="third-r" title="Right third"></div></div><div class="snap-layout sl-tb"><div class="snap-zone" data-snap="top" title="Top"></div><div class="snap-zone" data-snap="bottom" title="Bottom"></div></div><div class="snap-layout sl-3r"><div class="snap-zone" data-snap="row-t" title="Top row"></div><div class="snap-zone" data-snap="row-m" title="Middle row"></div><div class="snap-zone" data-snap="row-b" title="Bottom row"></div></div><div class="snap-layout sl-4c"><div class="snap-zone" data-snap="q1" title="Col 1"></div><div class="snap-zone" data-snap="q2" title="Col 2"></div><div class="snap-zone" data-snap="q3" title="Col 3"></div><div class="snap-zone" data-snap="q4" title="Col 4"></div></div><div class="snap-layout sl-max"><div class="snap-zone" data-snap="max" title="Maximize"></div></div></div></div><div class="window-body" id="body-' + id + '" style="padding:0;overflow:hidden"></div><div class="resize-handle resize-n"></div><div class="resize-handle resize-s"></div><div class="resize-handle resize-e"></div><div class="resize-handle resize-w"></div><div class="resize-handle resize-ne"></div><div class="resize-handle resize-nw"></div><div class="resize-handle resize-se"></div><div class="resize-handle resize-sw"></div>';
+  win.innerHTML = '<div class="titlebar"><div class="title-text">' + title.replace(/</g, '&lt;') + '</div><div class="win-controls"><button class="btn-media-fullscreen" title="Fullscreen media window" aria-label="Fullscreen media window" style="display:grid;place-items:center"><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg></button><button class="btn-min" title="Minimize"><svg viewBox="0 0 10 10"><path d="M1 5h8"/></svg></button><button class="btn-max" title="Snap / Maximize"><svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" rx="0.5"/></svg></button><button class="btn-close" title="Close"><svg viewBox="0 0 10 10"><path d="M2 2l6 6M8 2l-6 6"/></svg></button></div><div class="snap-picker"><div class="snap-layout sl-2"><div class="snap-zone" data-snap="left" title="Left"></div><div class="snap-zone" data-snap="right" title="Right"></div></div><div class="snap-layout sl-l-stack"><div class="snap-zone" data-snap="left" title="Left"></div><div class="snap-zone" data-snap="tr" title="Top right"></div><div class="snap-zone" data-snap="br" title="Bottom right"></div></div><div class="snap-layout sl-r-stack"><div class="snap-zone" data-snap="tl" title="Top left"></div><div class="snap-zone" data-snap="bl" title="Bottom left"></div><div class="snap-zone" data-snap="right" title="Right"></div></div><div class="snap-layout sl-4"><div class="snap-zone" data-snap="tl" title="Top left"></div><div class="snap-zone" data-snap="tr" title="Top right"></div><div class="snap-zone" data-snap="bl" title="Bottom left"></div><div class="snap-zone" data-snap="br" title="Bottom right"></div></div><div class="snap-layout sl-3"><div class="snap-zone" data-snap="third-l" title="Left third"></div><div class="snap-zone" data-snap="third-c" title="Center"></div><div class="snap-zone" data-snap="third-r" title="Right third"></div></div><div class="snap-layout sl-tb"><div class="snap-zone" data-snap="top" title="Top"></div><div class="snap-zone" data-snap="bottom" title="Bottom"></div></div><div class="snap-layout sl-3r"><div class="snap-zone" data-snap="row-t" title="Top row"></div><div class="snap-zone" data-snap="row-m" title="Middle row"></div><div class="snap-zone" data-snap="row-b" title="Bottom row"></div></div><div class="snap-layout sl-4c"><div class="snap-zone" data-snap="q1" title="Col 1"></div><div class="snap-zone" data-snap="q2" title="Col 2"></div><div class="snap-zone" data-snap="q3" title="Col 3"></div><div class="snap-zone" data-snap="q4" title="Col 4"></div></div><div class="snap-layout sl-max"><div class="snap-zone" data-snap="max" title="Maximize"></div></div></div></div><div class="window-body" id="body-' + id + '" style="padding:0;overflow:hidden"></div><div class="resize-handle resize-n"></div><div class="resize-handle resize-s"></div><div class="resize-handle resize-e"></div><div class="resize-handle resize-w"></div><div class="resize-handle resize-ne"></div><div class="resize-handle resize-nw"></div><div class="resize-handle resize-se"></div><div class="resize-handle resize-sw"></div>';
   document.getElementById('windows').appendChild(win);
   openWindows[id] = win;
   requestAnimationFrame(() => requestAnimationFrame(() => win.classList.add('open')));
   win.querySelector('.btn-close').onclick = (e) => { e.stopPropagation(); closeWindow(id); };
   win.querySelector('.btn-min').onclick = (e) => { e.stopPropagation(); minimizeWindow(id); };
+  const mediaFullscreenBtn = win.querySelector('.btn-media-fullscreen');
+  if (mediaFullscreenBtn) mediaFullscreenBtn.onclick = async (e) => {
+    e.stopPropagation();
+    try {
+      if (document.fullscreenElement === win) await (document.exitFullscreen ? document.exitFullscreen() : Promise.resolve());
+      else if (win.requestFullscreen) await win.requestFullscreen();
+      else toggleMaximize(id);
+    } catch (_) { toggleMaximize(id); }
+  };
   const maxBtn = win.querySelector('.btn-max');
   const snapPicker = win.querySelector('.snap-picker');
   let snapShowT = null, snapHideT = null;
@@ -2903,7 +2912,7 @@ function createBrowserUI(body) {
       el.onclick = function(e) {
         var closeTarget = e.target && (e.target.getAttribute('data-close') != null || (e.target.closest && e.target.closest('[data-close]')));
         if (closeTarget) { e.stopPropagation(); closeTab(Number(el.dataset.tabIndex)); }
-        else switchTab(Number(el.dataset.tabIndex));
+        else { var clickedIndex = Number(el.dataset.tabIndex); if (Number.isFinite(clickedIndex)) switchTab(clickedIndex); }
       };
       el.onkeydown = function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); switchTab(Number(el.dataset.tabIndex)); } };
       tabsEl.appendChild(el);
@@ -2990,6 +2999,14 @@ function createBrowserUI(body) {
       node.style.fontWeight = activeNow ? '750' : '500';
       node.style.boxShadow = activeNow ? '0 -2px 8px rgba(30,38,55,.10)' : 'inset 0 -1px 0 rgba(80,90,110,.08)';
       node.style.zIndex = activeNow ? '3' : '1';
+    });
+    // Reconcile every tab from the single authoritative active index after each switch.
+    tabsEl.querySelectorAll('.bunny-browser-tab[data-tab-index]').forEach(function(node) {
+      var selected = Number(node.dataset.tabIndex) === state.active;
+      node.classList.toggle('is-active', selected);
+      node.setAttribute('aria-selected', selected ? 'true' : 'false');
+      node.setAttribute('aria-current', selected ? 'page' : 'false');
+      node.style.setProperty('--tab-selected', selected ? '1' : '0');
     });
     if (previous !== state.active) {
       var activeEl = tabsEl.querySelector('[data-tab-index="' + state.active + '"]');
@@ -4850,4 +4867,15 @@ if (!window.__vosSkipBoot) {
 }
 @media(prefers-reduced-motion:reduce){.window:has(input[data-url]) *, .window:has(#showsContent) *{transition:none!important;animation:none!important}}
 
+
+/* Dedicated fullscreen control for episode/movie media windows. */
+.btn-media-fullscreen{width:28px;height:26px;padding:0;border:0;border-radius:7px;background:transparent;color:var(--text);cursor:pointer;align-items:center;justify-content:center;transition:background .16s ease,transform .16s ease}
+.btn-media-fullscreen:hover{background:var(--accent-soft);transform:scale(1.06)}
+.bunny-media-window:fullscreen,.bunny-media-window:-webkit-full-screen{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;margin:0!important;border-radius:0!important;transform:none!important;z-index:2147483000!important}
+.bunny-media-window:fullscreen .window-body,.bunny-media-window:-webkit-full-screen .window-body{height:auto!important;min-height:0!important;flex:1 1 auto!important}
+
+/* Browser tab active indicator is tied strictly to the current .is-active tab. */
+.bunny-browser-tabs .bunny-browser-tab.is-active{position:relative!important;z-index:8!important;background:#fff!important;color:#202431!important;border-color:#fff!important;box-shadow:0 -2px 8px rgba(30,38,55,.12)!important}
+.bunny-browser-tabs .bunny-browser-tab:not(.is-active):after{display:none!important;content:none!important}
+.bunny-browser-tabs .bunny-browser-tab.is-active:after{content:""!important;display:block!important;position:absolute!important;left:14px!important;right:14px!important;bottom:-1px!important;height:3px!important;border-radius:4px 4px 0 0!important;background:var(--accent)!important}
 </style>
