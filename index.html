@@ -1332,7 +1332,18 @@ input#gamesSearch::placeholder, input#musicSearch::placeholder, input[data-url]:
 @media(max-width:560px){.shows-control-row{gap:5px}.shows-control-row #showsVolume{width:45px}.shows-control-title{display:none}}
 .shows-shell button{font:inherit}.shows-btn{border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);padding:9px 11px;cursor:pointer;transition:background .18s,transform .18s}.shows-btn:hover{background:var(--accent-soft)}
 @media(max-width:560px){.shows-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.shows-card{padding:11px}.shows-episode{gap:8px;padding:10px}.shows-play{padding:7px}}
-    function playEpisode(show,ep){const path=show.path==='shows'?'shows/'+ep:show.path+'/'+ep;const url=urlFor(path);content.innerHTML='<div class="shows-player"><div class="shows-player-head"><button id="showsPlayerBack" class="shows-link">‹ Episodes</button><span>'+esc(clean(ep))+'</span></div><div class="shows-video-wrap"><video id="showsVideo" autoplay playsinline preload="metadata" src="'+esc(url)+'"></video><div class="shows-video-vignette"></div><div class="shows-video-controls" id="showsControls"><div class="shows-seek-row"><span id="showsCurrent">0:00</span><input id="showsSeek" aria-label="Video progress" type="range" min="0" max="1000" value="0"><span id="showsDuration">0:00</span></div><div class="shows-control-row"><button id="showsPlayPause" aria-label="Play or pause" style="display:inline-flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg></button><button id="showsBack10" aria-label="Back 10 seconds" style="display:inline-flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1 4v6h6"/><path d="M3.5 15a9 9 0 1 0 2.1-9.3L1 10"/></svg><span>10</span></button><button id="showsForward10" aria-label="Forward 10 seconds" style="display:inline-flex;align-items:center;gap:4px"><span>10</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M23 4v6h-6"/><path d="M20.5 15a9 9 0 1 1-2.1-9.3L23 10"/></svg></button><span class="shows-control-title">'+esc(clean(ep))+'</span><button id="showsMute" aria-label="Mute" style="display:inline-flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19 5a10 10 0 0 1 0 14M15.5 8.5a5 5 0 0 1 0 7"/></svg></button><input id="showsVolume" aria-label="Volume" type="range" min="0" max="1" step="0.05" value="1"><button id="showsFullscreen" aria-label="Fullscreen" style="display:inline-flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button></div></div><button id="showsBigPlay" class="shows-big-play" aria-label="Play" style="display:inline-flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div><div class="shows-player-note">MP4, WebM, and other browser-supported formats work here. MKV playback depends on your browser and its codecs.</div></div>';content.querySelector('#showsPlayerBack').onclick=()=>openShow(show);const v=content.querySelector('#showsVideo'),wrap=content.querySelector('.shows-video-wrap'),controls=content.querySelector('#showsControls'),seek=content.querySelector('#showsSeek'),playBtn=content.querySelector('#showsPlayPause'),big=content.querySelector('#showsBigPlay'),cur=content.querySelector('#showsCurrent'),dur=content.querySelector('#showsDuration');let hideTimer;const clock=n=>{if(!isFinite(n))return '0:00';n=Math.max(0,Math.floor(n));return Math.floor(n/60)+':'+String(n%60).padStart(2,'0')};function syncPlay(){playBtn.innerHTML=v.paused?'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>';big.style.display=v.paused?'grid':'none';wrap.classList.toggle('is-paused',v.paused)}function reveal(){wrap.classList.add('show-controls');clearTimeout(hideTimer);if(!v.paused)hideTimer=setTimeout(()=>wrap.classList.remove('show-controls'),2300)}function toggle(){if(v.paused)v.play().catch(()=>{});else v.pause()}v.addEventListener('play',syncPlay);v.addEventListener('pause',syncPlay);v.addEventListener('timeupdate',()=>{cur.textContent=clock(v.currentTime);if(!seek.matches(':active')&&v.duration)seek.value=String(Math.round(v.currentTime/v.duration*1000))});v.addEventListener('loadedmetadata',()=>{dur.textContent=clock(v.duration)});v.addEventListener('mousemove',reveal);v.addEventListener('touchstart',reveal,{passive:true});wrap.addEventListener('mouseleave',()=>{if(!v.paused){clearTimeout(hideTimer);hideTimer=setTimeout(()=>wrap.classList.remove('show-controls'),700)}});playBtn.onclick=toggle;big.onclick=toggle;v.onclick=toggle;content.querySelector('#showsBack10').onclick=()=>v.currentTime=Math.max(0,v.currentTime-10);content.querySelector('#showsForward10').onclick=()=>v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);seek.oninput=()=>{if(v.duration)v.currentTime=(Number(seek.value)/1000)*v.duration};content.querySelector('#showsMute').onclick=()=>{v.muted=!v.muted;content.querySelector('#showsMute').innerHTML=v.muted?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19 5a10 10 0 0 1 0 14M15.5 8.5a5 5 0 0 1 0 7"/></svg>';content.querySelector('#showsVolume').oninput=e=>{v.volume=Number(e.target.value);v.muted=v.volume===0};content.querySelector('#showsFullscreen').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen?.();else (wrap.requestFullscreen||wrap.webkitRequestFullscreen)?.call(wrap)};v.onerror=()=>{const note=content.querySelector('.shows-player-note');if(note)note.textContent='This browser could not play this file. MP4 with H.264 video and AAC audio is usually the most compatible; MKV support varies.'};syncPlay();reveal()}
+    function playEpisode(show,ep){const path=show.path==='shows'?'shows/'+ep:show.path+'/'+ep;const url=urlFor(path);content.innerHTML='<div class="shows-player"><div class="shows-player-head"><button id="showsPlayerBack" class="shows-link">‹ Episodes</button><span>'+esc(clean(ep))+'</span></div><div class="shows-video-wrap"><video id="showsVideo" autoplay playsinline preload="metadata" src="'+esc(url)+'"></video><div class="shows-video-vignette"></div><div class="shows-video-controls" id="showsControls"><div class="shows-seek-row"><span id="showsCurrent">0:00</span><input id="showsSeek" aria-label="Video progress" type="range" min="0" max="1000" value="0"><span id="showsDuration">0:00</span></div><div class="shows-control-row"><button id="showsPlayPause" aria-label="Play or pause" style="display:inline-flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg></button><button id="showsBack10" aria-label="Back 10 seconds" style="display:inline-flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1 4v6h6"/><path d="M3.5 15a9 9 0 1 0 2.1-9.3L1 10"/></svg><span>10</span></button><button id="showsForward10" aria-label="Forward 10 seconds" style="display:inline-flex;align-items:center;gap:4px"><span>10</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M23 4v6h-6"/><path d="M20.5 15a9 9 0 1 1-2.1-9.3L23 10"/></svg></button><span class="shows-control-title">'+esc(clean(ep))+'</span><button id="showsMute" aria-label="Mute" style="display:inline-flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19 5a10 10 0 0 1 0 14M15.5 8.5a5 5 0 0 1 0 7"/></svg></button><input id="showsVolume" aria-label="Volume" type="range" min="0" max="1" step="0.05" value="1"><button id="showsFullscreen" aria-label="Fullscreen" style="display:inline-flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button></div></div><button id="showsBigPlay" class="shows-big-play" aria-label="Play" style="display:inline-flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div><div class="shows-player-note">MP4, WebM, and other browser-supported formats work here. MKV playback depends on your browser and its codecs.</div></div>';content.querySelector('#showsPlayerBack').onclick=()=>openShow(show);const v=content.querySelector('#showsVideo'),wrap=content.querySelector('.shows-video-wrap'),controls=content.querySelector('#showsControls'),seek=content.querySelector('#showsSeek'),playBtn=content.querySelector('#showsPlayPause'),big=content.querySelector('#showsBigPlay'),cur=content.querySelector('#showsCurrent'),dur=content.querySelector('#showsDuration');let hideTimer;const clock=n=>{if(!isFinite(n))return '0:00';n=Math.max(0,Math.floor(n));return Math.floor(n/60)+':'+String(n%60).padStart(2,'0')};function syncPlay(){playBtn.innerHTML=v.paused?'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>';big.style.display=v.paused?'grid':'none';wrap.classList.toggle('is-paused',v.paused)}function reveal(){wrap.classList.add('show-controls');clearTimeout(hideTimer);if(!v.paused)hideTimer=setTimeout(()=>wrap.classList.remove('show-controls'),2300)}function toggle(){if(v.paused)v.play().catch(()=>{});else v.pause()}v.addEventListener('play',syncPlay);v.addEventListener('pause',syncPlay);v.addEventListener('timeupdate',()=>{cur.textContent=clock(v.currentTime);if(!seek.matches(':active')&&v.duration)seek.value=String(Math.round(v.currentTime/v.duration*1000))});v.addEventListener('loadedmetadata',()=>{dur.textContent=clock(v.duration)});v.addEventListener('mousemove',reveal);v.addEventListener('touchstart',reveal,{passive:true});wrap.addEventListener('mouseleave',()=>{if(!v.paused){clearTimeout(hideTimer);hideTimer=setTimeout(()=>wrap.classList.remove('show-controls'),700)}});playBtn.onclick=toggle;big.onclick=toggle;v.onclick=toggle;content.querySelector('#showsBack10').onclick=()=>v.currentTime=Math.max(0,v.currentTime-10);content.querySelector('#showsForward10').onclick=()=>v.currentTime=Math.min(v.duration||Infinity,v.currentTime+10);seek.oninput=()=>{if(v.duration)v.currentTime=(Number(seek.value)/1000)*v.duration};content.querySelector('#showsMute').onclick=()=>{v.muted=!v.muted;content.querySelector('#showsMute').innerHTML=v.muted?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19 5a10 10 0 0 1 0 14M15.5 8.5a5 5 0 0 1 0 7"/></svg>';content.querySelector('#showsVolume').oninput=e=>{v.volume=Number(e.target.value);v.muted=v.volume===0};content.querySelector('#showsFullscreen').onclick=()=>{
+        const el = wrap || content.querySelector('.shows-video-wrap') || content.querySelector('.shows-player');
+        const active = document.fullscreenElement || document.webkitFullscreenElement;
+        if (active) {
+          (document.exitFullscreen || document.webkitExitFullscreen || function(){})['call'](document);
+        } else if (el) {
+          el.style.background = '#000';
+          const v = el.querySelector('video');
+          if (v) { v.style.width='100%'; v.style.height='100%'; v.style.objectFit='contain'; v.style.background='#000'; }
+          (el.requestFullscreen || el.webkitRequestFullscreen || function(){})['call'](el);
+        }
+      };v.onerror=()=>{const note=content.querySelector('.shows-player-note');if(note)note.textContent='This browser could not play this file. MP4 with H.264 video and AAC audio is usually the most compatible; MKV support varies.'};syncPlay();reveal()}
 
 /* Media / episode / file windows: content occupies all space below the titlebar.
    The app window itself stays windowed until the user presses Bunny OS maximize. */
@@ -1570,6 +1581,93 @@ html.gate-lock #boot, html.gate-lock #desktop, html.gate-lock #onboard {
 }
 </style>
 
+
+<style id="bunny-true-fullscreen">
+.bunny-media-window:fullscreen,
+.bunny-media-window:-webkit-full-screen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: #000 !important;
+  overflow: hidden !important;
+  transform: none !important;
+  z-index: 2147483646 !important;
+}
+.bunny-media-window:fullscreen > .titlebar,
+.bunny-media-window:-webkit-full-screen > .titlebar,
+.bunny-media-window:fullscreen > .snap-picker,
+.bunny-media-window:-webkit-full-screen > .snap-picker,
+.bunny-media-window:fullscreen .resize-handle,
+.bunny-media-window:-webkit-full-screen .resize-handle {
+  display: none !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.bunny-media-window:fullscreen > .window-body,
+.bunny-media-window:-webkit-full-screen > .window-body {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #000 !important;
+  overflow: hidden !important;
+  display: block !important;
+}
+.bunny-media-window:fullscreen > .window-body > iframe,
+.bunny-media-window:-webkit-full-screen > .window-body > iframe,
+.bunny-media-window:fullscreen > .window-body > video,
+.bunny-media-window:-webkit-full-screen > .window-body > video {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  background: #000 !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+.shows-video-wrap:fullscreen,
+.shows-video-wrap:-webkit-full-screen,
+.shows-player:fullscreen,
+.shows-player:-webkit-full-screen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #000 !important;
+  overflow: hidden !important;
+}
+.shows-video-wrap:fullscreen video,
+.shows-video-wrap:-webkit-full-screen video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background: #000 !important;
+  border: 0 !important;
+}
+</style>
 </head>
 <body>
 
@@ -3002,10 +3100,40 @@ function openGameWindow(title, path, directSrc) {
   if (mediaFullscreenBtn) mediaFullscreenBtn.onclick = async (e) => {
     e.stopPropagation();
     try {
-      if (document.fullscreenElement === win) await (document.exitFullscreen ? document.exitFullscreen() : Promise.resolve());
-      else if (win.requestFullscreen) await win.requestFullscreen();
+      var active = document.fullscreenElement || document.webkitFullscreenElement;
+      if (active) {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        return;
+      }
+      win.style.background = '#000';
+      win.style.border = '0';
+      win.style.borderRadius = '0';
+      win.style.boxShadow = 'none';
+      var body = win.querySelector('.window-body');
+      if (body) {
+        body.style.background = '#000';
+        body.style.padding = '0';
+        body.style.margin = '0';
+        body.style.border = '0';
+      }
+      var frame = win.querySelector('iframe, video');
+      if (frame) {
+        frame.style.border = '0';
+        frame.style.outline = 'none';
+        frame.style.background = '#000';
+        frame.style.width = '100%';
+        frame.style.height = '100%';
+        frame.style.position = 'absolute';
+        frame.style.left = '0';
+        frame.style.top = '0';
+        frame.style.right = '0';
+        frame.style.bottom = '0';
+      }
+      if (win.requestFullscreen) await win.requestFullscreen({ navigationUI: 'hide' });
+      else if (win.webkitRequestFullscreen) win.webkitRequestFullscreen();
       else toggleMaximize(id);
-    } catch (_) { toggleMaximize(id); }
+    } catch (_) { try { toggleMaximize(id); } catch (e2) {} }
   };
   const maxBtn = win.querySelector('.btn-max');
   const snapPicker = win.querySelector('.snap-picker');
